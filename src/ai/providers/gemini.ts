@@ -63,6 +63,48 @@ export async function generateContent(params: {
   maxOutputTokens?: number;
   jsonMode?: boolean;
 }): Promise<{ text: string }> {
+  // If API key starts with AQ., use REST API with x-goog-api-key header for 100% Google Cloud compatibility
+  if (API_KEY.startsWith('AQ.')) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${params.model}:generateContent?key=${encodeURIComponent(API_KEY)}`;
+    const userPrompt = typeof params.contents === 'string' ? params.contents : (params.prompt || '');
+    const contentsPayload = [];
+
+    if (params.systemInstruction) {
+      contentsPayload.push({ role: 'user', parts: [{ text: `System Instruction: ${params.systemInstruction}` }] });
+    }
+    contentsPayload.push({ role: 'user', parts: [{ text: userPrompt }] });
+
+    const payload: any = {
+      contents: contentsPayload,
+      generationConfig: {
+        temperature: params.temperature ?? 0.7,
+        maxOutputTokens: params.maxOutputTokens ?? 4096,
+      },
+    };
+
+    if (params.jsonMode) {
+      payload.generationConfig.responseMimeType = 'application/json';
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': API_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error?.message || `Gemini API error: ${res.status}`);
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    return { text };
+  }
+
+  // Standard @google/genai SDK for AIza keys
   const config: Record<string, any> = {
     temperature: params.temperature ?? 0.7,
     maxOutputTokens: params.maxOutputTokens ?? 4096,
@@ -86,9 +128,25 @@ export async function generateContent(params: {
 }
 
 /**
- * Generate embeddings using the new @google/genai SDK.
+ * Generate embeddings using the new @google/genai SDK or REST API.
  */
 export async function embedContent(text: string): Promise<number[]> {
+  if (API_KEY.startsWith('AQ.')) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.EMBEDDING}:embedContent?key=${encodeURIComponent(API_KEY)}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': API_KEY,
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text }] }]
+      }),
+    });
+    const data = await res.json();
+    return data.embedding?.values ?? data.embeddings?.[0]?.values ?? [];
+  }
+
   const response = await geminiClient.models.embedContent({
     model: MODELS.EMBEDDING,
     contents: text,
