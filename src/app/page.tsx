@@ -1,69 +1,304 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Sidebar } from '@/components/shell/Sidebar';
+import { Header } from '@/components/shell/Header';
+import { ContextPanel } from '@/components/shell/ContextPanel';
+import { AskAIDrawer, AICreatorType } from '@/components/shell/AskAIDrawer';
+import { QuickAddModal, QuickAddType } from '@/components/shell/QuickAddModal';
+
+import { DashboardView } from '@/components/views/DashboardView';
+import { RoadmapsView } from '@/components/views/RoadmapsView';
+import { CreateRoadmapView } from '@/components/views/CreateRoadmapView';
+import { AIRoadmapGeneratorView } from '@/components/views/AIRoadmapGeneratorView';
+import { InteractiveRoadmapView } from '@/components/views/InteractiveRoadmapView';
+import { TopicWorkspaceView } from '@/components/views/TopicWorkspaceView';
+import { AITutorView } from '@/components/views/AITutorView';
+import { NotesView } from '@/components/views/NotesView';
+import { KnowledgeView } from '@/components/views/KnowledgeView';
+import { QuizzesView } from '@/components/views/QuizzesView';
+import { CodingView } from '@/components/views/CodingView';
+import { TasksView } from '@/components/views/TasksView';
+
+import { NavItemKey } from '@/types';
+
+type SubViewMode = 'none' | 'create-roadmap' | 'ai-generator' | 'interactive-tree' | 'topic-workspace';
+
+export default function StudyFlowShell() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<NavItemKey>('dashboard');
+  const [subView, setSubView] = useState<SubViewMode>('none');
+  const [activeTopicTitle, setActiveTopicTitle] = useState<string>('Middleware');
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Verify authenticated session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        router.push('/login');
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.push('/login');
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+
+    try {
+      const savedTab = localStorage.getItem('studyflow_active_tab') as NavItemKey | null;
+      if (savedTab) setActiveTab(savedTab);
+      const savedTopic = localStorage.getItem('studyflow_active_topic');
+      if (savedTopic) setActiveTopicTitle(savedTopic);
+    } catch (e) {}
+    setIsMounted(true);
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isContextPanelOpen, setIsContextPanelOpen] = useState(false);
+
+  /* Modal / Drawer Dynamic States */
+  const [isAskAIOpen, setIsAskAIOpen] = useState(false);
+  const [askAIMode, setAskAIMode] = useState<AICreatorType>('chat');
+
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddType, setQuickAddType] = useState<QuickAddType>('task');
+
+  const [activeRoadmapId, setActiveRoadmapId] = useState<string | null>(null);
+
+  // Reset subview and persist tab selection when switching main tabs
+  const handleSelectTab = (key: NavItemKey) => {
+    setSubView('none');
+    setActiveTab(key);
+    try {
+      localStorage.setItem('studyflow_active_tab', key);
+    } catch (e) {
+      console.warn('Failed to persist active tab to localStorage', e);
+    }
+  };
+
+  const handleUpdateTopicTitle = (topic: string) => {
+    setActiveTopicTitle(topic);
+    try {
+      localStorage.setItem('studyflow_active_topic', topic);
+    } catch (e) {
+      console.warn('Failed to persist active topic to localStorage', e);
+    }
+  };
+
+  // Keyboard shortcut listener (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setAskAIMode('chat');
+        setIsAskAIOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleOpenAskAI = (mode: AICreatorType = 'chat') => {
+    setAskAIMode(mode);
+    setIsAskAIOpen(true);
+  };
+
+  const handleOpenQuickAdd = (type: QuickAddType = 'task') => {
+    setQuickAddType(type);
+    setIsQuickAddOpen(true);
+  };
+
+  const renderActiveView = () => {
+    if (subView === 'create-roadmap') {
+      return (
+        <CreateRoadmapView
+          onBack={() => setSubView('none')}
+          onSave={() => {
+            setSubView('none');
+            setActiveTab('roadmaps');
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      );
+    }
+
+    if (subView === 'ai-generator') {
+      return (
+        <AIRoadmapGeneratorView
+          onBack={() => setSubView('none')}
+          onSave={() => {
+            setSubView('none');
+            setActiveTab('roadmaps');
+          }}
+        />
+      );
+    }
+
+    if (subView === 'interactive-tree') {
+      return (
+        <InteractiveRoadmapView
+          roadmapId={activeRoadmapId}
+          onBack={() => setSubView('none')}
+          onOpenTopicWorkspace={(topicTitle) => {
+            setActiveTopicTitle(topicTitle);
+            setSubView('topic-workspace');
+          }}
+          onOpenAITutor={() => handleSelectTab('ai-tutor')}
+        />
+      );
+    }
+
+    if (subView === 'topic-workspace') {
+      return (
+        <TopicWorkspaceView
+          topicTitle={activeTopicTitle}
+          onBack={() => setSubView('interactive-tree')}
+          onNavigateToAITutor={() => handleSelectTab('ai-tutor')}
+          onNavigateToNotes={() => handleSelectTab('notes')}
+          onNavigateToQuizzes={() => handleSelectTab('quizzes')}
+          onNavigateToCoding={() => handleSelectTab('coding')}
+        />
+      );
+    }
+
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            onNavigate={(key) => handleSelectTab(key)}
+            onOpenAskAI={() => handleOpenAskAI('chat')}
+            onOpenQuickAdd={handleOpenQuickAdd}
+          />
+        );
+      case 'roadmaps':
+        return (
+          <RoadmapsView
+            onOpenAskAI={() => handleOpenAskAI('roadmap')}
+            onOpenQuickAdd={() => handleOpenQuickAdd('roadmap')}
+            onOpenCreateRoadmap={() => setSubView('create-roadmap')}
+            onOpenAIRoadmapGenerator={() => setSubView('ai-generator')}
+            onOpenInteractiveRoadmap={(id) => {
+              setActiveRoadmapId(id || null);
+              setSubView('interactive-tree');
+            }}
+          />
+        );
+      case 'ai-tutor':
+        return (
+          <AITutorView
+            initialTopic={activeTopicTitle}
+            onNavigate={(key, topic) => {
+              if (topic) handleUpdateTopicTitle(topic);
+              handleSelectTab(key);
+            }}
+          />
+        );
+      case 'notes':
+        return <NotesView initialTopic={activeTopicTitle} onOpenQuickAdd={handleOpenQuickAdd} />;
+      case 'knowledge':
+        return <KnowledgeView onOpenAskAI={() => handleOpenAskAI('chat')} />;
+      case 'quizzes':
+        return <QuizzesView initialTopic={activeTopicTitle} />;
+      case 'coding':
+        return <CodingView initialTopic={activeTopicTitle} />;
+      case 'tasks':
+        return <TasksView onOpenQuickAdd={handleOpenQuickAdd} />;
+      default:
+        return (
+          <DashboardView
+            onNavigate={(key) => handleSelectTab(key)}
+            onOpenAskAI={() => handleOpenAskAI('chat')}
+            onOpenQuickAdd={handleOpenQuickAdd}
+          />
+        );
+    }
+  };
+
+  if (!isMounted || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0B0F17] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-[#10B981] text-xs font-semibold">
+          <div className="w-4 h-4 border-2 border-[#10B981] border-t-transparent rounded-full animate-spin" />
+          <span>Loading StudyFlow Workspace...</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0B0F17] text-[#F9FAFB] flex flex-col md:flex-row antialiased selection:bg-[#10B981]/20 selection:text-[#10B981] relative overflow-hidden">
+      {/* Ambient Gradient Mesh Spheres */}
+      <div className="ambient-glow-1" />
+      <div className="ambient-glow-2" />
+      <div className="ambient-glow-3" />
+
+      {/* 1. Left Sidebar Component */}
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={(key) => handleSelectTab(key)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+      />
+
+      {/* Main Shell Content Column */}
+      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+        {/* 2. Top Header Component */}
+        <Header
+          activeTab={activeTab}
+          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          onOpenAskAI={handleOpenAskAI}
+          onOpenQuickAdd={handleOpenQuickAdd}
+          isContextPanelOpen={isContextPanelOpen}
+          onToggleContextPanel={() => setIsContextPanelOpen(!isContextPanelOpen)}
+        />
+
+        {/* 3. Main Content Container Area */}
+        <main
+          className={`
+            flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto transition-all duration-300
+            ${isContextPanelOpen ? 'lg:pr-[23rem]' : ''}
+          `}
+        >
+          {renderActiveView()}
+        </main>
+      </div>
+
+      {/* 4. Optional Right Context Panel */}
+      <ContextPanel
+        isOpen={isContextPanelOpen}
+        onClose={() => setIsContextPanelOpen(false)}
+        activeTab={activeTab}
+        onOpenAskAI={() => handleOpenAskAI('chat')}
+      />
+
+      {/* Global Interactive Modals / Drawers */}
+      <AskAIDrawer
+        isOpen={isAskAIOpen}
+        onClose={() => setIsAskAIOpen(false)}
+        initialMode={askAIMode}
+      />
+
+      <QuickAddModal
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        initialType={quickAddType}
+      />
     </div>
   );
 }
