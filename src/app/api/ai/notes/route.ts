@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateNote, summarizeNote } from '@/ai/services/notes';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

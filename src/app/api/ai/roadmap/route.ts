@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateRoadmap } from '@/ai/services/roadmap';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

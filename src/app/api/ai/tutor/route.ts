@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { tutorChat, extractMemory, TutorMessage } from '@/ai/services/tutor';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
