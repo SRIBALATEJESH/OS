@@ -1,0 +1,2253 @@
+StudyFlow — Phase 1 UI Prompts
+
+Screens 05–26 | Web UI only | Next.js + TypeScript + Tailwind + shadcn/ui
+
+Screen 05 — AI Roadmap Generator
+
+Design Screen 05 of StudyFlow: AI Roadmap Generator.
+
+Use the established StudyFlow design system from Screens 01–04.
+
+TECH STACK:
+
+Next.js, TypeScript, Tailwind CSS, shadcn/ui, Lucide React, Framer Motion. Use mock/local state only.
+
+PHASE 1:
+
+UI only. Do not implement authentication, Supabase, backend APIs, AI APIs, RAG, or Flutter.
+
+STYLE:
+
+Premium natural glassmorphism. Warm off-white #F6F5F1, white/glass surfaces, #171717 text, #6B6B65 muted text, #E5E3DC borders, forest green #1F6B4F accent, #E7F0EB light accent, #B7791F warning, #B94A48 error.
+
+STRICTLY AVOID purple, violet, sky blue, cyan, bright blue, pink, neon, cyberpunk styling, blue/purple gradients, and excessive glow.
+
+PAGE:
+
+Breadcrumb: Roadmaps / Generate with AI
+
+Title: “Build your learning path”
+
+Subtitle: “Tell us what you want to learn and structure the journey.”
+
+Create a two-column layout.
+
+LEFT — configuration:
+
+- Learning goal large textarea
+
+- Current level: Beginner / Intermediate / Advanced
+
+- Goal type: Academic / Interview / Career / Project / Personal
+
+- Daily study time
+
+- Duration
+
+- Preferred learning methods: Theory / Practice / Projects / Coding / Quizzes / Revision
+
+- Optional prerequisites
+
+- Generate Roadmap button
+
+RIGHT — live preview:
+
+Show a clean roadmap tree preview with editable-looking topic nodes.
+
+Generation state:
+
+Show a calm sequential process:
+
+Understanding goal → Identifying prerequisites → Structuring topics → Creating practice checkpoints → Preparing roadmap.
+
+After generation, show:
+
+- Generated roadmap title
+
+- Topic count
+
+- Estimated duration
+
+- Interactive preview
+
+- Regenerate
+
+- Edit
+
+- Save Roadmap
+
+Use Framer Motion for subtle transitions. Do not use futuristic AI animations or sparkle effects.
+
+All form interactions, preview updates, validation, and generation states should work with mock data.
+
+Screen 06 — Interactive Roadmap
+
+Design Screen 06 of StudyFlow: Interactive Learning Roadmap.
+
+Use React Flow as the conceptual technology for the visual tree.
+
+PHASE 1: UI only with mock/local data. No authentication, Supabase, backend, AI APIs, RAG, or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism using #F6F5F1, white translucent glass, #171717, #6B6B65, #E5E3DC, forest green #1F6B4F, #E7F0EB, amber #B7791F and muted red #B94A48.
+
+Avoid purple, violet, sky blue, cyan, bright blue, pink, neon, cyberpunk, and excessive glow.
+
+PAGE HEADER:
+
+Breadcrumb: Roadmaps / Backend Development
+
+Title: “Backend Development”
+
+Actions:
+
+- Add Topic
+
+- Expand All
+
+- Collapse All
+
+- Fit View
+
+- Zoom controls
+
+- Roadmap menu
+
+MAIN:
+
+Large interactive roadmap canvas.
+
+Example:
+
+Backend Development
+
+├── Web Fundamentals
+
+├── Node.js
+
+│   ├── Runtime
+
+│   ├── Modules
+
+│   └── Async Programming
+
+├── Express.js
+
+│   ├── Routing
+
+│   ├── Middleware
+
+│   └── Error Handling
+
+├── Databases
+
+└── Projects
+
+Node cards contain title, short label, progress, status and difficulty.
+
+States:
+
+Not Started = neutral
+
+In Progress = green
+
+Completed = subtle green
+
+Needs Revision = amber
+
+Interactions:
+
+- Click node
+
+- Hover node
+
+- Add child topic
+
+- Rename
+
+- Delete
+
+- Mark complete
+
+- Expand/collapse
+
+- Drag/reorder where practical
+
+- Zoom/pan
+
+- Fit view
+
+Clicking a node opens a right contextual panel with:
+
+- Topic title
+
+- Description
+
+- Progress
+
+- Checklist preview
+
+- Start Learning
+
+- AI Tutor
+
+- Notes
+
+- Quiz
+
+- Coding
+
+Add a small roadmap progress summary in the header.
+
+Use subtle node and panel animations. The tree must feel like a learning journey, not a network-monitoring diagram.
+
+Screen 07 — Topic Workspace
+
+Design Screen 07 of StudyFlow: Topic Workspace.
+
+This is the central workspace opened when a user selects a roadmap topic.
+
+PHASE 1: UI only with realistic mock data. No authentication, Supabase, backend, AI APIs, RAG, or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Warm neutral background #F6F5F1, glass white surfaces, black typography, muted gray, forest green #1F6B4F, light green #E7F0EB, subtle amber/red states. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+Breadcrumb:
+
+Backend Development / Express.js / Middleware
+
+Title:
+
+“Middleware”
+
+Description:
+
+“Understand how middleware functions process requests and responses in Express applications.”
+
+Show:
+
+- Progress 72%
+
+- Difficulty: Intermediate
+
+- Estimated time: 45 min
+
+- Status: In Progress
+
+MAIN LAYOUT:
+
+LEFT/main:
+
+Learning objectives
+
+- Understand middleware flow
+
+- Create custom middleware
+
+- Use built-in middleware
+
+- Handle errors
+
+Learning checklist:
+
+☑ Understand request/response cycle
+
+☑ Learn middleware syntax
+
+☐ Create custom middleware
+
+☐ Learn error-handling middleware
+
+Allow:
+
+- Add checklist item
+
+- Edit item
+
+- Delete item
+
+- Mark complete
+
+RIGHT:
+
+“Topic Actions”
+
+- Continue Learning
+
+- Ask AI
+
+- Generate Notes
+
+- Take Quiz
+
+- Practice Coding
+
+BOTTOM:
+
+Related subtopics:
+
+- Request lifecycle
+
+- Built-in middleware
+
+- Custom middleware
+
+- Error handling
+
+Recent activity:
+
+- Quiz completed
+
+- Note created
+
+- AI discussion
+
+Add a compact topic progress visualization.
+
+The workspace should make the selected topic feel like a complete learning environment rather than a simple detail page.
+
+Use smooth tabs/sections and contextual panels.
+
+Screen 08 — AI Tutor Chat Library
+
+Design Screen 08 of StudyFlow: AI Tutor Conversation Library.
+
+The AI Tutor supports multiple saved conversations per learning topic.
+
+PHASE 1: UI only with mock conversation data. No real AI, backend, Supabase, authentication, RAG or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Use the established StudyFlow palette. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+Title: “AI Tutor”
+
+Subtitle: “Continue a conversation or start a new learning discussion.”
+
+Primary:
+
++ New Chat
+
+LEFT:
+
+Conversation library.
+
+Sections:
+
+- Recent
+
+- Pinned
+
+- Previous Chats
+
+Conversation examples:
+
+- Understanding Express Middleware
+
+- Middleware Interview Questions
+
+- Error Handling Revision
+
+- Build a Custom Middleware
+
+- Explain Middleware Again
+
+Each conversation item shows:
+
+- Title
+
+- Topic
+
+- Last message preview
+
+- Last active time
+
+- More menu
+
+More menu:
+
+- Rename
+
+- Pin
+
+- Archive
+
+- Delete
+
+MAIN:
+
+Show selected conversation preview with:
+
+- Conversation title
+
+- Topic breadcrumb
+
+- Message count
+
+- Last activity
+
+- Continue Conversation button
+
+RIGHT optional context panel:
+
+- Current topic
+
+- Topic progress
+
+- Weak areas
+
+- Related notes
+
+- Related quiz
+
+- Related coding problems
+
+Include search/filter only within the conversation library if useful; do not create a separate global Search feature.
+
+Create polished empty states for no conversations.
+
+Use Framer Motion for switching conversations and opening drawers.
+
+Screen 09 — AI Tutor Chat Interface
+
+Design Screen 09 of StudyFlow: AI Tutor Chat Interface.
+
+This is the full conversation workspace for persistent topic-based AI tutoring.
+
+PHASE 1: UI only. Use mock messages. No AI API, Supabase, backend, authentication, RAG or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Warm neutral base, translucent white panels, black typography, muted gray, forest green accent #1F6B4F. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+LAYOUT:
+
+Left conversation sidebar:
+
+- New Chat
+
+- Current conversation
+
+- Previous chats
+
+- Rename/delete actions
+
+CENTER CHAT:
+
+Header:
+
+“Understanding Express Middleware”
+
+Topic: Express.js → Middleware
+
+Message examples:
+
+User: “Explain middleware in simple terms.”
+
+AI: A clear structured explanation with headings and a small code example.
+
+User: “Give me a real-world example.”
+
+AI: Practical example.
+
+Message UI must support:
+
+- Markdown
+
+- Code blocks
+
+- Copy code
+
+- Copy response
+
+- Regenerate
+
+- Feedback controls
+
+- Expand/collapse long answers
+
+BOTTOM COMPOSER:
+
+Large input:
+
+“Ask anything about this topic...”
+
+Actions:
+
+- Attach document
+
+- Add context
+
+- Send
+
+Quick prompts:
+
+Explain this simply
+
+Give me an example
+
+Quiz me
+
+Give me a coding problem
+
+Summarize our discussion
+
+RIGHT CONTEXT PANEL:
+
+Current topic
+
+Progress
+
+Weak areas
+
+Recent quiz score
+
+Related notes
+
+Related documents
+
+MEMORY INDICATOR:
+
+Add a subtle area:
+
+“Using conversation context”
+
+“Topic memory available”
+
+Do not imply real memory implementation in Phase 1; this is a UI representation.
+
+Add smooth message entrance, typing indicator, auto-scroll behavior, composer expansion and panel transitions.
+
+Screen 10 — Notes Library
+
+Design Screen 10 of StudyFlow: Notes Library.
+
+PHASE 1: UI only with mock/local data. No authentication, Supabase, backend, AI APIs, RAG or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Use the established StudyFlow palette. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+Title: “My Notes”
+
+Subtitle: “Build a personal knowledge base around everything you learn.”
+
+Actions:
+
++ New Note
+
+Generate with AI
+
+TOP TOOLBAR:
+
+- Search notes
+
+- Topic filter
+
+- Tags
+
+- Sort by recently updated / recently created
+
+NOTE CARDS:
+
+Each card contains:
+
+- Title
+
+- Topic
+
+- Short preview
+
+- Tags
+
+- Last updated
+
+- Reading time
+
+- AI-generated badge when appropriate
+
+- More menu
+
+Example:
+
+“Express Middleware”
+
+Topic: Express.js
+
+Tags: backend, express, middleware
+
+Updated: Today
+
+Reading time: 8 min
+
+More:
+
+- Open
+
+- Rename
+
+- Duplicate
+
+- Delete
+
+Views:
+
+- Grid
+
+- List
+
+Empty state:
+
+“No notes yet.”
+
+“Create your first note or generate structured notes from a topic.”
+
+Use subtle hover animations and smooth filtering.
+
+Screen 11 — AI Notes Generator
+
+Design Screen 11 of StudyFlow: AI Notes Generator.
+
+PHASE 1: UI only. Use mock generation. No AI API, Supabase, backend, authentication, RAG or Flutter.
+
+STYLE:
+
+Natural glassmorphism, warm neutral background, forest green accent. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+“Generate Study Notes”
+
+Subtitle:
+
+“Turn a topic into structured notes designed for learning.”
+
+FORM:
+
+Topic
+
+Current level
+
+Note style:
+
+- Quick revision
+
+- Detailed explanation
+
+- Interview preparation
+
+- Exam notes
+
+- Practical guide
+
+Depth:
+
+- Short
+
+- Standard
+
+- Detailed
+
+Include:
+
+- Examples
+
+- Code snippets
+
+- Key points
+
+- Common mistakes
+
+- Practice questions
+
+BUTTON:
+
+Generate Notes
+
+GENERATION STATE:
+
+Preparing topic
+
+Structuring concepts
+
+Adding examples
+
+Creating revision points
+
+PREVIEW:
+
+Show generated note with:
+
+- Title
+
+- Summary
+
+- Key concepts
+
+- Explanation
+
+- Examples
+
+- Common mistakes
+
+- Quick revision section
+
+Actions:
+
+- Save Note
+
+- Regenerate
+
+- Edit
+
+- Copy
+
+Use a two-column editor/preview layout on desktop and stacked layout on mobile.
+
+Screen 12 — Note Editor / Reader
+
+Design Screen 12 of StudyFlow: Note Editor and Reader.
+
+PHASE 1: UI only with local/mock state. No backend, Supabase, AI API, authentication, RAG or Flutter.
+
+STYLE:
+
+Premium natural glassmorphism with warm neutral background and forest green accents. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+Breadcrumb:
+
+Notes / Express Middleware
+
+Title:
+
+“Express Middleware”
+
+Actions:
+
+Save
+
+Edit
+
+More
+
+READER:
+
+Create a clean document-reading experience with:
+
+- Title
+
+- Topic
+
+- Tags
+
+- Summary
+
+- Table of contents
+
+- Main content
+
+- Code examples
+
+- Key takeaways
+
+- Common mistakes
+
+- Quick revision
+
+EDITOR MODE:
+
+Provide a markdown-style editor with:
+
+- Heading controls
+
+- Bold
+
+- Italic
+
+- Lists
+
+- Code block
+
+- Quote
+
+- Link
+
+- Checklist
+
+- Preview
+
+RIGHT PANEL:
+
+- Note metadata
+
+- Topic
+
+- Tags
+
+- Reading time
+
+- Completion checkbox
+
+- Related quiz
+
+- Related coding problem
+
+- Ask AI
+
+Include autosave visual state:
+
+“Saved”
+
+“Unsaved changes”
+
+Use smooth transition between reader and editor modes.
+
+Screen 13 — Knowledge Library
+
+Design Screen 13 of StudyFlow: Knowledge Library.
+
+This is the user's personal learning-document library for future RAG functionality.
+
+PHASE 1: UI only. Use mock documents. No real file processing, Supabase, backend, RAG, AI APIs, authentication or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Warm neutral background, white translucent surfaces, forest green accents, subtle borders. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+“Knowledge Library”
+
+Subtitle:
+
+“Keep your learning material organized and ready for study.”
+
+Actions:
+
++ Upload Document
+
+DOCUMENT TYPES:
+
+- PDF
+
+- DOCX
+
+- TXT
+
+- Markdown
+
+TOP AREA:
+
+Storage summary:
+
+Documents: 12
+
+Topics linked: 8
+
+Recent uploads: 3
+
+DOCUMENT GRID/LIST:
+
+Each document shows:
+
+- File icon
+
+- Filename
+
+- Type
+
+- Size
+
+- Topic
+
+- Upload date
+
+- Processing status
+
+- More menu
+
+Processing states:
+
+Uploaded
+
+Processing
+
+Ready
+
+Needs attention
+
+More menu:
+
+- Open
+
+- Rename
+
+- Link to topic
+
+- Ask AI
+
+- Delete
+
+FILTERS:
+
+- All
+
+- Ready
+
+- Processing
+
+- PDFs
+
+- Notes
+
+Use local filtering.
+
+Empty state:
+
+“Your knowledge library is empty.”
+
+“Upload your study material to build your personal knowledge base.”
+
+Make upload interactions visually polished.
+
+Screen 14 — Document Upload
+
+Design Screen 14 of StudyFlow: Document Upload interface.
+
+PHASE 1: UI only with mock upload behavior. No real storage, backend, Supabase, RAG or AI APIs.
+
+STYLE:
+
+Natural glassmorphism, warm neutral background, forest green accent, subtle borders. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+PAGE:
+
+Title:
+
+“Add Learning Material”
+
+Subtitle:
+
+“Upload notes and documents you want to use while studying.”
+
+MAIN UPLOAD AREA:
+
+Large drag-and-drop glass panel.
+
+Text:
+
+“Drop your files here”
+
+Secondary:
+
+“or choose files from your device”
+
+Supported:
+
+PDF, DOCX, TXT, Markdown
+
+Show upload icon using Lucide.
+
+UPLOAD QUEUE:
+
+Example:
+
+Operating Systems Notes.pdf
+
+8.4 MB
+
+Uploading 72%
+
+Show animated progress.
+
+After upload:
+
+Processing
+
+Extracting text
+
+Preparing document
+
+Ready
+
+DOCUMENT DETAILS:
+
+- Document name
+
+- Topic
+
+- Description
+
+- Tags
+
+Actions:
+
+Cancel
+
+Upload
+
+After successful mock upload:
+
+“Document added to your Knowledge Library.”
+
+Include validation for unsupported file type and oversized file.
+
+Make the upload experience clean and reassuring rather than technical.
+
+Screen 15 — Document Reader
+
+Design Screen 15 of StudyFlow: Document Reader.
+
+PHASE 1: UI only with mock document content. No real document processing, RAG, backend, Supabase, AI APIs or Flutter.
+
+STYLE:
+
+Premium natural glassmorphism. Warm off-white base, glass panels, black typography, forest green accent. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+Breadcrumb:
+
+Knowledge Library / Operating Systems Notes
+
+Title:
+
+“Operating Systems Notes”
+
+Metadata:
+
+PDF · 42 pages · Linked to Operating Systems
+
+Actions:
+
+Ask AI
+
+Download
+
+More
+
+MAIN:
+
+Create a document reading workspace.
+
+LEFT:
+
+Document page/navigation panel:
+
+- Page thumbnails
+
+- Current page
+
+- Search within document
+
+CENTER:
+
+Readable document content with:
+
+- Page number
+
+- Headings
+
+- Paragraphs
+
+- Code/diagram placeholders
+
+- Highlight capability
+
+RIGHT:
+
+Context panel:
+
+- Linked topic
+
+- Related notes
+
+- Related quiz
+
+- AI Tutor
+
+- Ask about this document
+
+Add reading controls:
+
+- Zoom
+
+- Previous/next page
+
+- Fit width
+
+Use realistic mock content.
+
+The reader should feel like a modern knowledge workspace, not a traditional PDF viewer.
+
+Screen 16 — RAG AI Chat
+
+Design Screen 16 of StudyFlow: RAG Knowledge Chat.
+
+PHASE 1: UI only. Simulate RAG behavior with mock data. No real vector database, backend, AI API, Supabase, authentication or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Warm neutral background, translucent surfaces, forest green accent. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+“Ask Your Knowledge”
+
+Subtitle:
+
+“Chat with your uploaded learning material.”
+
+LEFT:
+
+Document/context selector:
+
+- Operating Systems Notes
+
+- DBMS Notes
+
+- Java Notes
+
+Selected document shown with status:
+
+Ready
+
+CENTER CHAT:
+
+Example:
+
+User:
+
+“Explain Banker's Algorithm according to my notes.”
+
+AI:
+
+Structured answer.
+
+Below the answer show a subtle:
+
+“Sources used”
+
+- Operating Systems Notes · Page 24
+
+- Operating Systems Notes · Page 27
+
+Clicking a source opens the document reader at the relevant page.
+
+BOTTOM:
+
+Ask anything about your material...
+
+Quick prompts:
+
+Summarize this chapter
+
+Explain simply
+
+Create quiz
+
+Find important concepts
+
+Compare two concepts
+
+RIGHT:
+
+Knowledge context:
+
+- Selected documents
+
+- Current topic
+
+- Related notes
+
+- Conversation history
+
+Add:
+
+New Chat
+
+Previous Chats
+
+Rename
+
+Delete
+
+Show a subtle “Source-grounded answer” indicator without futuristic AI graphics.
+
+Screen 17 — Quiz Library
+
+Design Screen 17 of StudyFlow: Quiz Library.
+
+PHASE 1: UI only with mock/local quiz data. No backend, Supabase, authentication or AI API.
+
+STYLE:
+
+Natural premium glassmorphism. Use StudyFlow colors. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+“Quiz Center”
+
+Subtitle:
+
+“Test your understanding and identify what needs more practice.”
+
+Actions:
+
++ Create Quiz
+
+Generate with AI
+
+SUMMARY:
+
+Saved Quizzes
+
+24
+
+Completed
+
+17
+
+Average Score
+
+82%
+
+Needs Review
+
+4
+
+QUIZ LIST:
+
+Cards or rows containing:
+
+- Quiz title
+
+- Topic
+
+- Question count
+
+- Difficulty
+
+- Best score
+
+- Attempts
+
+- Last attempted
+
+- Status
+
+Example:
+
+“Java HashMap Fundamentals”
+
+15 questions
+
+Intermediate
+
+Best: 86%
+
+Attempts: 4
+
+Actions:
+
+Play
+
+View Results
+
+Edit
+
+Delete
+
+FILTER:
+
+- All
+
+- Not Started
+
+- Completed
+
+- Needs Review
+
+- Difficulty
+
+View:
+
+Grid/List
+
+Empty state:
+
+“No quizzes yet.”
+
+“Generate your first quiz from a learning topic.”
+
+Use subtle progress and score indicators.
+
+Screen 18 — AI Quiz Generator
+
+Design Screen 18 of StudyFlow: AI Quiz Generator.
+
+PHASE 1: UI only with mock generation. No AI API, backend, Supabase, authentication or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism. Warm neutral base, forest green accent, subtle amber for difficulty. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+“Generate a Quiz”
+
+Subtitle:
+
+“Create practice questions based on what you're learning.”
+
+FORM:
+
+Topic
+
+Difficulty:
+
+Beginner / Intermediate / Advanced
+
+Question count:
+
+5 / 10 / 15 / 20
+
+Question types:
+
+- Multiple Choice
+
+- True/False
+
+- Multiple Answer
+
+- Scenario
+
+- Interview
+
+Focus:
+
+- Concepts
+
+- Practical application
+
+- Common mistakes
+
+- Interview preparation
+
+Optional:
+
+“Use my notes as context”
+
+BUTTON:
+
+Generate Quiz
+
+PREVIEW:
+
+Show question cards with:
+
+Question
+
+Options
+
+Correct answer hidden
+
+Difficulty
+
+Topic
+
+Actions:
+
+Regenerate
+
+Edit
+
+Save Quiz
+
+Generation state:
+
+Understanding topic
+
+Selecting concepts
+
+Creating questions
+
+Checking difficulty
+
+Preparing quiz
+
+Use calm animations only.
+
+Screen 19 — Quiz Player
+
+Design Screen 19 of StudyFlow: Quiz Player.
+
+PHASE 1: UI only with mock quiz data. No backend, AI API, Supabase, authentication or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism, warm neutral background, forest green primary. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+Java HashMap Fundamentals
+
+Question 4 of 15
+
+Progress bar
+
+MAIN QUESTION CARD:
+
+Question:
+
+“What is the average lookup complexity of a HashMap?”
+
+Options:
+
+A. O(n)
+
+B. O(1)
+
+C. O(log n)
+
+D. O(n²)
+
+Allow selection.
+
+BUTTONS:
+
+Previous
+
+Next
+
+Submit Quiz
+
+RIGHT:
+
+Question navigator:
+
+1 ✓
+
+2 ✓
+
+3 ✓
+
+4 ●
+
+5 ○
+
+6 ○
+
+Show:
+
+Answered 3/15
+
+Optional timer.
+
+INTERACTION:
+
+- Selected option state
+
+- Correct/incorrect feedback after answer where appropriate
+
+- Smooth question transitions
+
+- Progress updates
+
+- Keyboard-friendly navigation
+
+Before final submission show confirmation modal.
+
+After submit navigate to Quiz Result mock screen.
+
+Screen 20 — Quiz Result
+
+Design Screen 20 of StudyFlow: Quiz Result.
+
+PHASE 1: UI only with mock result data.
+
+STYLE:
+
+Natural premium glassmorphism. Use forest green for positive results and muted amber/red for areas needing review. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+“Quiz Complete”
+
+Subtitle:
+
+“Java HashMap Fundamentals”
+
+MAIN SCORE:
+
+86%
+
+13 / 15 correct
+
+Show a clean circular progress visualization.
+
+SUMMARY CARDS:
+
+Correct: 13
+
+Incorrect: 2
+
+Time: 14m 32s
+
+Accuracy: 86%
+
+PERFORMANCE:
+
+Show topic breakdown:
+
+HashMap basics — 100%
+
+Hashing — 72%
+
+Collision handling — 50%
+
+WEAK AREA:
+
+“Collision handling needs more practice.”
+
+ACTIONS:
+
+[ Review Mistakes ]
+
+[ Try Again ]
+
+[ Practice Coding ]
+
+[ Ask AI ]
+
+QUESTION REVIEW:
+
+List each question:
+
+- Correct/incorrect state
+
+- Question
+
+- User answer
+
+- Correct answer
+
+- Explanation
+
+Add:
+
+“Recommended next step”
+
+“Review collision handling before advancing.”
+
+Use subtle animations for score reveal and progress bars.
+
+Screen 21 — Coding Problem Library
+
+Design Screen 21 of StudyFlow: Coding Practice Library.
+
+PHASE 1: UI only with mock coding problems. No code execution backend, AI API, Supabase, authentication or Flutter.
+
+STYLE:
+
+Natural premium glassmorphism with warm neutral background, forest green accent and restrained amber/red status colors. No purple, violet, sky blue, cyan, bright blue, pink, neon or excessive glow.
+
+HEADER:
+
+“Coding Practice”
+
+Subtitle:
+
+“Strengthen your understanding by solving problems.”
+
+Actions:
+
++ Create Problem
+
+Generate with AI
+
+SUMMARY:
+
+Solved
+
+42
+
+In Progress
+
+5
+
+Success Rate
+
+78%
+
+Saved
+
+18
+
+FILTERS:
+
+Language:
+
+Java / JavaScript / Python
+
+Difficulty:
+
+Easy / Medium / Hard
+
+Topic:
+
+Current roadmap topics
+
+Status:
+
+All / Unsolved / Solved / Needs Review
+
+PROBLEM CARDS:
+
+Title
+
+Topic
+
+Difficulty
+
+Language
+
+Estimated time
+
+Status
+
+Best result
+
+Example:
+
+“Remove Duplicates from ArrayList”
+
+Java
+
+Medium
+
+Collections
+
+15 min
+
+Solved
+
+Passed 8/10 tests
+
+Actions:
+
+Solve
+
+View
+
+Delete
+
+Use clean coding/editorial visual language rather than a hacker aesthetic.
+
+Screen 22 — AI Coding Generator
+
+Design Screen 22 of StudyFlow: AI Coding Problem Generator.
+
+PHASE 1: UI only with mock generated problems. No real AI, backend, Supabase, authentication or code execution.
+
+STYLE:
+
+Natural premium glassmorphism. Keep code editor areas neutral and readable. Forest green is the only main accent. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and cyberpunk styling.
+
+HEADER:
+
+“Generate Coding Practice”
+
+Subtitle:
+
+“Create a coding problem based on the topic you're currently learning.”
+
+FORM:
+
+Topic
+
+Language:
+
+Java / JavaScript / Python
+
+Difficulty:
+
+Easy / Medium / Hard
+
+Problem type:
+
+- Implementation
+
+- Algorithm
+
+- Debugging
+
+- Scenario
+
+- Interview
+
+Include:
+
+- Examples
+
+- Constraints
+
+- Hints
+
+- Test cases
+
+BUTTON:
+
+Generate Problem
+
+PREVIEW:
+
+Problem title
+
+Description
+
+Examples
+
+Constraints
+
+Input/output format
+
+Difficulty
+
+Estimated time
+
+Actions:
+
+Regenerate
+
+Edit
+
+Save Problem
+
+Start Solving
+
+Generation animation:
+
+Understanding topic
+
+Selecting concept
+
+Designing problem
+
+Creating test cases
+
+Preparing challenge
+
+Keep it educational, not hacker-themed.
+
+Screen 23 — Coding Workspace
+
+Design Screen 23 of StudyFlow: Coding Workspace.
+
+PHASE 1: UI only. Simulate execution/results with mock data. No real code execution backend, AI API, Supabase, authentication or Flutter.
+
+STYLE:
+
+Premium natural glassmorphism combined with a clean developer IDE workspace.
+
+Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and cyberpunk styling.
+
+HEADER:
+
+“Remove Duplicates from ArrayList”
+
+Java · Medium
+
+Actions:
+
+Save
+
+Reset
+
+More
+
+LAYOUT:
+
+LEFT:
+
+Problem statement panel.
+
+Sections:
+
+- Description
+
+- Examples
+
+- Constraints
+
+- Input/Output
+
+- Hints
+
+- Related topic
+
+CENTER:
+
+Monaco Editor area.
+
+Use a neutral dark editor surface for code readability, but do not introduce purple/blue neon syntax styling.
+
+Provide realistic Java code:
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Write your solution
+
+    }
+
+}
+
+Bottom controls:
+
+[ Run ]
+
+[ Submit ]
+
+RIGHT:
+
+Test case panel.
+
+Show:
+
+Passed 3/5
+
+Test cases:
+
+✓ Test 1
+
+✓ Test 2
+
+✓ Test 3
+
+✕ Test 4
+
+○ Test 5
+
+Below:
+
+Execution summary
+
+Time
+
+Memory
+
+AI Hint button:
+
+“Get a Hint”
+
+For Phase 1, clicking Run/Submit should use mock results.
+
+Use smooth panel resizing, editor focus states and result animations.
+
+Screen 24 — Coding Result
+
+Design Screen 24 of StudyFlow: Coding Result.
+
+PHASE 1: UI only with mock results.
+
+STYLE:
+
+Natural premium glassmorphism. Forest green positive state, muted amber/red for issues. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+“Submission Result”
+
+Main status:
+
+“Passed”
+
+Score:
+
+8 / 10 test cases
+
+Show:
+
+- Test cases passed
+
+- Execution time
+
+- Memory usage
+
+- Difficulty
+
+- Attempts
+
+TEST CASE REVIEW:
+
+✓ Test 1 — Passed
+
+✓ Test 2 — Passed
+
+✓ Test 3 — Passed
+
+✕ Test 4 — Failed
+
+○ Test 5 — Not executed
+
+FAILED TEST:
+
+Show input
+
+Expected output
+
+Actual output
+
+AI FEEDBACK PANEL:
+
+“Your approach works for most inputs, but the duplicate-handling logic fails when values repeat consecutively.”
+
+Actions:
+
+[ View Problem ]
+
+[ Try Again ]
+
+[ Get AI Explanation ]
+
+[ Save Solution ]
+
+PERFORMANCE:
+
+Show a compact history:
+
+Attempt 1 — 5/10
+
+Attempt 2 — 7/10
+
+Attempt 3 — 8/10
+
+Recommended:
+
+“Practice another medium Collections problem.”
+
+Use subtle score reveal animation.
+
+Screen 25 — Task Dashboard
+
+Design Screen 25 of StudyFlow: Study Tasks Dashboard.
+
+PHASE 1: UI only with local/mock data.
+
+STYLE:
+
+Natural premium glassmorphism, warm neutral background, forest green primary, muted amber/red states. Avoid purple, violet, sky blue, cyan, bright blue, pink, neon and excessive glow.
+
+HEADER:
+
+“Study Tasks”
+
+Subtitle:
+
+“Turn your learning goals into manageable actions.”
+
+Actions:
+
++ Add Task
+
+SUMMARY:
+
+Today
+
+4 tasks
+
+Completed
+
+2
+
+Upcoming
+
+7
+
+Overdue
+
+1
+
+MAIN:
+
+Create sections:
+
+TODAY
+
+☑ Review Express middleware
+
+☐ Complete REST API quiz
+
+☐ Solve one coding problem
+
+☐ Update backend notes
+
+UPCOMING
+
+- Review MongoDB
+
+- Practice async programming
+
+- Take Node.js quiz
+
+OVERDUE
+
+- Complete HTTP revision
+
+Each task:
+
+- Checkbox
+
+- Title
+
+- Topic
+
+- Priority
+
+- Estimated time
+
+- Due date
+
+- More menu
+
+More:
+
+Edit
+
+Move
+
+Duplicate
+
+Delete
+
+FILTERS:
+
+- Today
+
+- Upcoming
+
+- Completed
+
+- Overdue
+
+- All
+
+Add a compact progress indicator:
+
+“2 of 4 completed”
+
+Implement:
+
+- Add task
+
+- Complete task
+
+- Edit task
+
+- Delete task
+
+- Filter
+
+- Sort
+
+- Drag/reorder where practical
+
+Use smooth completion animations.
+
+Screen 26 — Create / Edit Task
+
+Design Screen 26 of StudyFlow: Create and Edit Study Task.
+
+This is the final currently required Phase 1 UI screen.
+
+PHASE 1:
+
+UI only with local/mock state. No authentication, Supabase, backend, AI APIs, RAG or Flutter.
+
+STYLE:
+
+Premium natural glassmorphism consistent with all previous StudyFlow screens.
+
+Avoid:
+
+Purple
+
+Violet
+
+Sky blue
+
+Cyan
+
+Bright blue
+
+Pink
+
+Neon
+
+Cyberpunk
+
+Excessive glow
+
+HEADER:
+
+Breadcrumb:
+
+Tasks / New Task
+
+Title:
+
+“Create Study Task”
+
+FORM:
+
+Task title:
+
+“Complete Express Middleware revision”
+
+Description:
+
+Optional detailed description
+
+Topic:
+
+Select roadmap topic
+
+Task type:
+
+- Study
+
+- Revision
+
+- Quiz
+
+- Coding
+
+- Notes
+
+- Project
+
+Priority:
+
+Low
+
+Medium
+
+High
+
+Estimated time:
+
+15 min
+
+30 min
+
+45 min
+
+1 hour
+
+Custom
+
+Due:
+
+Today
+
+Tomorrow
+
+Custom date
+
+Optional:
+
+Recurring task toggle
+
+CHECKLIST:
+
+Allow the user to break the task into subtasks.
+
+Example:
+
+☐ Read middleware documentation
+
+☐ Review examples
+
+☐ Write one custom middleware
+
+☐ Take a short quiz
+
+RIGHT PREVIEW:
+
+Show how the task will appear in the Task Dashboard.
+
+Include:
+
+- Task title
+
+- Topic
+
+- Priority
+
+- Estimated time
+
+- Due date
+
+- Subtask progress
+
+ACTIONS:
+
+[ Cancel ]
+
+[ Save Task ]
+
+EDIT MODE:
+
+When editing an existing task, show:
+
+- Created date
+
+- Last updated
+
+- Completion history
+
+- Delete task
+
+SAVE STATE:
+
+Show:
+
+“Task saved successfully.”
+
+Use smooth modal/drawer transitions.
+
+RESPONSIVE:
+
+Desktop: two-column form + preview.
+
+Mobile: stacked form with preview below.
+
+IMPORTANT:
+
+This completes the initial Phase 1 UI screen set.
+
+Do not add:
+
+- Global Search
+
+- Notifications
+
+- Analytics
+
+- Settings
+
+- Authentication
+
+The final UI must remain consistent with the StudyFlow glassmorphism design system and be structured so Phase 2 Supabase integration can be added without redesigning these screens.

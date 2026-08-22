@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { resolveModel } from '@/ai/router';
-
-export const runtime = 'edge';
 import { MODELS, embedContent } from '@/ai/providers/gemini';
 import { tutorChat } from '@/ai/services/tutor';
 

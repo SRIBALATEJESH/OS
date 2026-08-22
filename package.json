@@ -25,7 +25,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.7",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

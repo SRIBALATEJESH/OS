@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { tutorChat, extractMemory, TutorMessage } from '@/ai/services/tutor';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
