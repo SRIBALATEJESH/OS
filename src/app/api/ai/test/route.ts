@@ -11,8 +11,12 @@ export async function GET() {
   const results: Record<string, any> = {};
   const hasKey = Boolean(process.env.GEMINI_API_KEY);
 
+  const rawKey = process.env.GEMINI_API_KEY || '';
+  const keyPrefix = rawKey.substring(0, 10);
+
   results.config = {
     hasGeminiApiKey: hasKey,
+    keyPrefix: keyPrefix ? `${keyPrefix}...` : 'MISSING',
     modelsAllocated: {
       priority1_cloud: MODELS.FLASH_LITE,
       priority2_embedding: MODELS.EMBEDDING,
