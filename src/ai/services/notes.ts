@@ -51,7 +51,18 @@ Return ONLY the JSON, no markdown, no extra text.`;
     jsonMode: true,
   });
 
-  const parsed = JSON.parse(result.text);
+  let rawText = result.text.trim();
+  if (rawText.startsWith('```')) {
+    rawText = rawText.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+  }
+
+  const firstBrace = rawText.indexOf('{');
+  const lastBrace = rawText.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    rawText = rawText.substring(firstBrace, lastBrace + 1);
+  }
+
+  const parsed = JSON.parse(rawText);
   return NoteSchema.parse(parsed);
 }
 

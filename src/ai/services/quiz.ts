@@ -61,7 +61,29 @@ Return ONLY the JSON object.`;
     jsonMode: true,
   });
 
-  const parsed = JSON.parse(result.text);
+  let rawText = result.text.trim();
+  if (rawText.startsWith('```')) {
+    rawText = rawText.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+  }
+
+  const firstBrace = rawText.indexOf('{');
+  const lastBrace = rawText.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    rawText = rawText.substring(firstBrace, lastBrace + 1);
+  }
+
+  const parsed = JSON.parse(rawText);
+
+  if (parsed && Array.isArray(parsed.questions)) {
+    parsed.questions = parsed.questions.map((q: any) => ({
+      question: q.question || 'Question',
+      question_type: ['MCQ', 'TF', 'Scenario'].includes(q.question_type) ? q.question_type : 'MCQ',
+      options: Array.isArray(q.options) && q.options.length >= 2 ? q.options : ['Option A', 'Option B', 'Option C', 'Option D'],
+      correct_answer: String(q.correct_answer || (Array.isArray(q.options) ? q.options[0] : 'Option A')),
+      explanation: q.explanation || 'Correct answer explanation.',
+    }));
+  }
+
   return QuizSchema.parse(parsed);
 }
 
