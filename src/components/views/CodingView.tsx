@@ -412,14 +412,54 @@ export const CodingView: React.FC<CodingViewProps> = ({ initialTopic }) => {
       let passedCount = 0;
       const testResults = testCases.map(tc => {
         try {
-          let parsedInput: any = tc.input;
+          // Parse test case input string into argument array
+          const rawInput = (tc.input || '').trim();
+          let args: any[] = [];
+
+          // 1. Try parsing direct JSON
+          let directJson: any = null;
+          let parsedDirectly = false;
           try {
-            parsedInput = JSON.parse(tc.input);
-          } catch (e) {
-            parsedInput = tc.input;
+            directJson = JSON.parse(rawInput);
+            parsedDirectly = true;
+          } catch (e) {}
+
+          if (parsedDirectly) {
+            if (Array.isArray(directJson)) {
+              // If user declared a function expecting >1 argument (e.g. sum(a,b)), unpack array [2,3] -> args [2,3]
+              if (declaredFnNames.length > 0 && directJson.length > 1) {
+                args = directJson;
+              } else {
+                args = [directJson];
+              }
+            } else {
+              args = [directJson];
+            }
+          } else {
+            // 2. Try wrapping in JSON array brackets for comma-separated args: "2, 3" -> "[2, 3]"
+            let wrappedSuccess = false;
+            try {
+              const wrapped = JSON.parse(`[${rawInput}]`);
+              if (Array.isArray(wrapped)) {
+                args = wrapped;
+                wrappedSuccess = true;
+              }
+            } catch (e) {}
+
+            // 3. Fallback: split primitives by comma
+            if (!wrappedSuccess) {
+              const parts = rawInput.split(',').map(p => p.trim());
+              args = parts.map(part => {
+                if (part === 'true') return true;
+                if (part === 'false') return false;
+                if (part === 'null') return null;
+                if (part === 'undefined') return undefined;
+                if (!isNaN(Number(part)) && part !== '') return Number(part);
+                try { return JSON.parse(part); } catch (e) { return part; }
+              });
+            }
           }
 
-          const args = Array.isArray(parsedInput) && declaredFnNames.length > 0 && fnNamesToTry.some(n => n.toLowerCase().includes('sum') || n.toLowerCase().includes('two')) ? parsedInput : [parsedInput];
           const actual = fn(...args);
 
           let actualStr = '';

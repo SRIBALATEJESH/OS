@@ -407,7 +407,7 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
   ];
 
   return (
-    <div className="space-y-4 animate-fade-in pb-16">
+    <div className="h-full w-full flex flex-col overflow-hidden animate-fade-in">
       
       {/* SCREEN 08: CONVERSATION LIBRARY VIEW MODE */}
       {viewMode === 'library' && (
@@ -520,10 +520,10 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
 
       {/* SCREEN 09: FULL INTERACTIVE AI CHAT INTERFACE MODE */}
       {viewMode === 'chat' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-140px)] min-h-[600px]">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 h-full min-h-0 w-full overflow-hidden">
           
-          {/* LEFT CONVERSATIONS SIDEBAR (3 Cols) */}
-          <div className="hidden lg:block lg:col-span-3 glass-card rounded-3xl p-4 border border-white/10 bg-[#121824]/80 space-y-4 overflow-y-auto">
+          {/* LEFT CONVERSATIONS SIDEBAR */}
+          <div className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 glass-card rounded-3xl p-4 border border-white/10 bg-[#121824]/80 space-y-4 overflow-y-auto h-full min-h-0 custom-scrollbar">
             <div className="flex items-center justify-between">
               <button
                 onClick={() => setViewMode('library')}
@@ -572,8 +572,8 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
             </div>
           </div>
 
-          {/* CENTER CHAT WORKSPACE (6 Cols) */}
-          <div className="lg:col-span-6 flex flex-col glass-card rounded-3xl border border-white/10 bg-[#121824]/90 overflow-hidden">
+          {/* CENTER CHAT WORKSPACE (Dynamic flex-1 expanded width) */}
+          <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden glass-card rounded-3xl border border-white/10 bg-[#121824]/90">
             
             {/* Chat Top Header */}
             <div className="p-4 border-b border-white/10 bg-[#121824] flex items-center justify-between shrink-0">
@@ -602,7 +602,7 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
             </div>
 
             {/* Messages Scroll Area */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0 custom-scrollbar">
               {messages.length === 0 && !isAiThinking && (
                 <div className="text-center text-xs text-[#9CA3AF] py-8 space-y-2">
                   <Sparkles className="h-8 w-8 text-[#10B981]/50 mx-auto" />
@@ -617,10 +617,10 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
                 >
                   <div
                     className={`
-                      max-w-[88%] rounded-2xl p-4 text-xs leading-relaxed space-y-2 relative
+                      max-w-full md:max-w-[96%] w-full rounded-2xl p-4 text-xs leading-relaxed space-y-2 relative overflow-hidden
                       ${m.sender === 'user'
-                        ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-tr-none shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                        : 'bg-white/5 text-[#F9FAFB] border border-white/10 rounded-tl-none'
+                        ? 'bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-tr-none shadow-[0_0_15px_rgba(16,185,129,0.2)] ml-auto max-w-[85%]'
+                        : 'bg-white/5 text-[#F9FAFB] border border-white/10 rounded-tl-none w-full'
                       }
                     `}
                   >
@@ -653,7 +653,9 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
                         <div className="whitespace-pre-wrap">{m.text}</div>
                       )
                     ) : (
-                      <FormattedMarkdown content={m.text} />
+                      <div className="w-full overflow-x-auto custom-scrollbar text-xs leading-relaxed font-normal text-[#F9FAFB]">
+                        <FormattedMarkdown content={m.text} />
+                      </div>
                     )}
 
                     {/* Code Snippet Box */}
@@ -745,8 +747,8 @@ export const AITutorView: React.FC<AITutorViewProps> = ({ initialTopic, onNaviga
             </div>
           </div>
 
-          {/* RIGHT CONTEXT PANEL (3 Cols) */}
-          <div className="hidden lg:block lg:col-span-3 glass-card rounded-3xl p-4 border border-white/10 bg-[#121824]/80 space-y-4 overflow-y-auto">
+          {/* RIGHT CONTEXT PANEL */}
+          <div className="hidden xl:flex flex-col w-72 xl:w-80 shrink-0 glass-card rounded-3xl p-4 border border-white/10 bg-[#121824]/80 space-y-4 overflow-y-auto h-full min-h-0 custom-scrollbar">
             <h3 className="text-xs font-bold text-[#F9FAFB] pb-2 border-b border-white/10">Topic Context</h3>
 
             <div className="space-y-3 text-xs">

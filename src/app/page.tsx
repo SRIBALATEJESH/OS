@@ -271,7 +271,11 @@ export default function StudyFlowShell() {
         {/* 3. Main Content Container Area */}
         <main
           className={`
-            flex-1 overflow-y-auto scroll-smooth p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto transition-all duration-300
+            flex-1 w-full transition-all duration-300
+            ${['ai-tutor', 'coding', 'knowledge'].includes(activeTab)
+              ? 'h-full overflow-hidden p-2 md:p-4 max-w-none'
+              : 'overflow-y-auto scroll-smooth p-4 sm:p-6 md:p-8 max-w-7xl mx-auto'
+            }
             ${isContextPanelOpen ? 'lg:pr-[23rem]' : ''}
           `}
         >

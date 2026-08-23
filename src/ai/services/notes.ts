@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { runAI } from '@/ai/gateway';
 
-const NOTES_SYSTEM = `You are StudyFlow's AI Notes Generator.
-Generate clear, structured study notes with key concepts, examples, and revision points.
-Format notes in clean structured text — NOT markdown with asterisks.
-Use section headers like "## Overview", "## Key Concepts", "## Examples", "## Common Mistakes".`;
+const NOTES_SYSTEM = `You are StudyFlow's Master AI Educator & Technical Author powered by Gemini 3.5 Flash-Lite.
+Generate exhaustive, in-depth, highly structured study notes formatted in GitHub Flavored Markdown.
+Include clear section headers (## Overview, ## Core Theoretical Concepts, ## Deep Dive & Architecture, ## Code & Practical Examples, ## Edge Cases & Performance, ## Exam & Interview Revision Sheet).
+Use bold markdown text, bullet lists, math equations, and fully functional syntax-highlighted code blocks. Provide maximum technical depth.`;
 
 export const NoteSchema = z.object({
   title: z.string(),
@@ -12,7 +12,6 @@ export const NoteSchema = z.object({
   key_concepts: z.array(z.string()),
   examples: z.array(z.string()),
   common_mistakes: z.array(z.string()),
-
   revision_points: z.array(z.string()),
   content: z.string(),
 });
@@ -24,30 +23,31 @@ export async function generateNote(params: {
   style: string;
   depth: string;
 }): Promise<GeneratedNote> {
-  const prompt = `Generate structured study notes as a JSON object for this topic.
+  const prompt = `Generate comprehensive, highly detailed, production-grade study notes as a JSON object for this topic.
+
+Topic: ${params.topic}
+Style: ${params.style || 'Deep technical masterclass'}
+Depth: ${params.depth || 'Comprehensive Deep Dive'}
 
 Return ONLY this JSON structure:
 {
   "title": "string — note title",
-  "summary": "string — 2-3 sentence overview",
-  "key_concepts": ["array of 4-8 key concept strings"],
-  "examples": ["array of 3-5 code or practical example strings"],
-  "common_mistakes": ["array of 3-5 common mistake strings"],
-  "revision_points": ["array of 5-10 revision point strings"],
-  "content": "string — full formatted note content with section headers"
+  "summary": "string — comprehensive 3-5 paragraph executive summary",
+  "key_concepts": ["array of 6-12 detailed key concept breakdown strings"],
+  "examples": ["array of 4-8 complete code or practical architectural example strings"],
+  "common_mistakes": ["array of 4-8 common mistakes, pitfalls & anti-pattern strings"],
+  "revision_points": ["array of 8-15 quick revision summary points"],
+  "content": "string — complete, 1500+ word masterclass study guide formatted in clean GitHub Flavored Markdown with section headers, bold terms, math formulas, and code blocks"
 }
 
-Topic: ${params.topic}
-Style: ${params.style}
-Depth: ${params.depth}
-
-Return ONLY the JSON, no markdown, no extra text.`;
+Return ONLY valid JSON.`;
 
   const result = await runAI({
     operation: 'notes.generate',
     prompt,
     systemInstruction: NOTES_SYSTEM,
     temperature: 0.6,
+    maxOutputTokens: 8192,
     jsonMode: true,
   });
 
