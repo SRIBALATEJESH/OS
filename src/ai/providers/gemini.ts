@@ -46,13 +46,15 @@ export async function generateContent(params: {
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${params.model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-  const userPrompt = typeof params.contents === 'string' ? params.contents : (params.prompt || '');
-  const contentsPayload = [];
+  let contentsPayload: any[];
 
-  if (params.systemInstruction) {
-    contentsPayload.push({ role: 'user', parts: [{ text: `System Instruction: ${params.systemInstruction}` }] });
+  if (Array.isArray(params.contents)) {
+    contentsPayload = params.contents;
+  } else if (typeof params.contents === 'string' && params.contents) {
+    contentsPayload = [{ role: 'user', parts: [{ text: params.contents }] }];
+  } else {
+    contentsPayload = [{ role: 'user', parts: [{ text: params.prompt || '' }] }];
   }
-  contentsPayload.push({ role: 'user', parts: [{ text: userPrompt }] });
 
   const payload: any = {
     contents: contentsPayload,
@@ -61,6 +63,12 @@ export async function generateContent(params: {
       maxOutputTokens: params.maxOutputTokens ?? 4096,
     },
   };
+
+  if (params.systemInstruction) {
+    payload.systemInstruction = {
+      parts: [{ text: params.systemInstruction }],
+    };
+  }
 
   if (params.jsonMode) {
     payload.generationConfig.responseMimeType = 'application/json';

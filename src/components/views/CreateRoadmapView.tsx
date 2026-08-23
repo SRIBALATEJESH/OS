@@ -53,9 +53,9 @@ const getBezierPath = (parent: CanvasNode, child: CanvasNode) => {
 
 export const CreateRoadmapView: React.FC<CreateRoadmapViewProps> = ({ onBack, onSave }) => {
   /* ── Form State ── */
-  const [roadmapName, setRoadmapName] = useState('Backend Development');
-  const [description, setDescription] = useState('Build production-ready backend development skills.');
-  const [learningGoal, setLearningGoal] = useState('Become job-ready for backend software engineering roles');
+  const [roadmapName, setRoadmapName] = useState('');
+  const [description, setDescription] = useState('');
+  const [learningGoal, setLearningGoal] = useState('');
   const [category, setCategory] = useState('Development');
   const [difficulty, setDifficulty] = useState('Intermediate');
   const [duration, setDuration] = useState('3 months');

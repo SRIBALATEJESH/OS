@@ -73,7 +73,6 @@ export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickA
   useEffect(() => {
     if (initialTopic) {
       setGenTopic(initialTopic);
-      setSearchQuery(initialTopic);
     }
   }, [initialTopic]);
 

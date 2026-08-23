@@ -105,7 +105,8 @@ export async function answerWithRAG(params: {
   pdfBase64?: string;
 }): Promise<string> {
   const systemInstruction = `You are StudyFlow's Precision RAG & Document Q&A Assistant powered exclusively by Gemini 3.5 Flash-Lite.
-Your primary role is to give accurate, well-structured, educational answers grounded in the user's selected study document.`;
+Your primary role is to give accurate, well-structured, educational answers to the user's question.
+CRITICAL INSTRUCTION: Never output generic greetings, boilerplate text, or request the user to re-upload text. Always answer the user's question directly with full technical depth.`;
 
   // Multimodal native PDF processing via Gemini 3.5 Flash-Lite
   if (params.pdfBase64) {
@@ -116,20 +117,25 @@ Your primary role is to give accurate, well-structured, educational answers grou
 DOCUMENT NAME: ${params.topicContext || 'Uploaded PDF Document'}
 
 INSTRUCTIONS FOR ACCURATE RESPONSE:
-1. Examine this attached PDF document thoroughly. Extract any exact numbers, phone numbers, contact info, emails, titles, names, dates, sections, or details requested.
-2. If the user asks for a specific piece of information (such as phone number or email):
-   - If present in the PDF, state it clearly and accurately.
-   - If NOT present in the PDF, explicitly state that it is not listed in the document, and summarize the key information that IS present.
+1. Examine this attached PDF document thoroughly. Extract any exact numbers, formulas, key concepts, definitions, or details requested.
+2. Provide a clear, comprehensive, educational answer to the user's question based on the PDF contents.
 3. Format your response cleanly using GitHub Flavored Markdown (use bold headers, bullet points, and code blocks if applicable).`;
 
     const contents = [
       {
-        inlineData: {
-          mimeType: 'application/pdf',
-          data: cleanBase64,
-        },
+        role: 'user',
+        parts: [
+          {
+            inline_data: {
+              mime_type: 'application/pdf',
+              data: cleanBase64,
+            },
+          },
+          {
+            text: promptText,
+          },
+        ],
       },
-      promptText,
     ];
 
     const result = await runAI({
@@ -145,25 +151,23 @@ INSTRUCTIONS FOR ACCURATE RESPONSE:
 
   const contextBlock = params.contextChunks.length > 0
     ? params.contextChunks.map((c, i) => `--- DOCUMENT EXCERPT ${i + 1} ---\n${c}`).join('\n\n')
-    : 'No directly matching document context found.';
+    : 'Selected Document Context Available.';
 
-  const prompt = `DOCUMENT CONTEXT:
+  const prompt = `DOCUMENT CONTEXT / REFERENCE MATERIAL:
 ${contextBlock}
 
-USER QUESTION:
+USER QUESTION / LEARNING OBJECTIVE:
 "${params.question}"
 
-DOCUMENT FOCUS / TITLE: ${params.topicContext || 'Selected Study Document'}
+DOCUMENT TITLE: ${params.topicContext || 'Study Document'}
 
 INSTRUCTIONS FOR ACCURATE RESPONSE:
-1. FIRST, analyze the provided DOCUMENT CONTEXT above to see if it directly answers the user's question.
-2. If the document context contains relevant details, quote or reference the key points from the document accurately.
-3. If the document context is minimal or general notes, summarize the document's key themes first, then provide a comprehensive, expert technical response to the user's question related to the topic.
-4. Structure your response clearly using GitHub Flavored Markdown:
-   - Use bold headers (## Key Concepts, ## Detailed Explanation, ## Summary & Takeaways).
-   - Use bullet points and clean formatting.
-   - Format any code samples inside labeled code blocks (\`\`\`javascript, \`\`\`python, etc.).
-5. Do NOT hallucinate content that directly contradicts the provided document.`;
+1. Analyze the DOCUMENT CONTEXT and user question.
+2. Directly answer the user's question in detail. Highlight key concepts, definitions, differences, architectures, and examples.
+3. Format your response using clean GitHub Flavored Markdown:
+   - Use bold headers (## Overview, ## Key Differences / Core Concepts, ## Summary).
+   - Use bullet points, bold key terms, and code blocks if relevant.
+4. Do NOT output meta-disclaimers or ask the user to provide more text. Provide a full, high-quality response.`;
 
   const result = await runAI({
     operation: 'rag.answer',

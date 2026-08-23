@@ -112,4 +112,16 @@ export const documentService = {
     }
     return true;
   },
+
+  // Get public download/viewer URL for a file in studyflow bucket
+  getPublicUrl(filePath: string): string {
+    if (!filePath) return '';
+    try {
+      const supabase = createClient();
+      const { data } = supabase.storage.from('studyflow').getPublicUrl(filePath);
+      return data?.publicUrl || '';
+    } catch (err) {
+      return '';
+    }
+  },
 };

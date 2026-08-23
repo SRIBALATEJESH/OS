@@ -372,11 +372,28 @@ export const CodingView: React.FC<CodingViewProps> = ({ initialTopic }) => {
 
   const runClientJSValidation = (userCode: string, testCases: TestCase[]) => {
     try {
-      // Create executable JS function from user code
-      // Supports functions named solution, main, or exported code
+      // Extract function names declared in userCode (e.g. function twoSum, const solve =)
+      const fnMatches = Array.from(userCode.matchAll(/(?:function\s+([a-zA-Z0-9_$]+)|(?:const|let|var)\s+([a-zA-Z0-9_$]+)\s*=)/g));
+      const declaredFnNames = fnMatches
+        .map(m => m[1] || m[2])
+        .filter(Boolean)
+        .filter(name => !['if', 'for', 'while', 'switch', 'return', 'let', 'const', 'var'].includes(name));
+
+      // Build dynamic try-invocation calls for any function found
+      const fnNamesToTry = Array.from(new Set(['solution', 'main', 'solve', ...declaredFnNames]));
+      const tryCalls = fnNamesToTry.map(name => `if (typeof ${name} === 'function') return ${name}(...args);`).join('\n');
+
       let fn: Function;
       try {
-        fn = new Function('input', `${userCode}\n if (typeof solution === 'function') return solution(input);\n if (typeof main === 'function') return main(input);\n return typeof input !== 'undefined' ? input : undefined;`);
+        fn = new Function('...args', `
+          ${userCode}
+          ${tryCalls}
+          if (args.length === 1) {
+            const single = args[0];
+            if (typeof single !== 'undefined') return single;
+          }
+          return args;
+        `);
       } catch (syntaxErr: any) {
         return {
           compiled: false,
@@ -395,16 +412,30 @@ export const CodingView: React.FC<CodingViewProps> = ({ initialTopic }) => {
       let passedCount = 0;
       const testResults = testCases.map(tc => {
         try {
-          // Parse input parameter if JSON/primitive
           let parsedInput: any = tc.input;
           try {
             parsedInput = JSON.parse(tc.input);
-          } catch (e) {}
+          } catch (e) {
+            parsedInput = tc.input;
+          }
 
-          const actual = fn(parsedInput);
-          const actualStr = typeof actual === 'object' ? JSON.stringify(actual) : String(actual ?? '');
-          const expectedStr = String(tc.expectedOutput ?? '').trim();
-          const isPassed = actualStr.trim() === expectedStr;
+          const args = Array.isArray(parsedInput) && declaredFnNames.length > 0 && fnNamesToTry.some(n => n.toLowerCase().includes('sum') || n.toLowerCase().includes('two')) ? parsedInput : [parsedInput];
+          const actual = fn(...args);
+
+          let actualStr = '';
+          if (typeof actual === 'object' && actual !== null) {
+            actualStr = JSON.stringify(actual);
+          } else {
+            actualStr = String(actual ?? '');
+          }
+
+          let expectedStr = String(tc.expectedOutput ?? '').trim();
+
+          // Normalize whitespace & outer quotes for array/object comparisons (e.g. "[1, 2]" vs "[1,2]")
+          const normActual = actualStr.replace(/\s+/g, '').replace(/^"|"$/g, '');
+          const normExpected = expectedStr.replace(/\s+/g, '').replace(/^"|"$/g, '');
+
+          const isPassed = normActual === normExpected || actualStr.trim() === expectedStr;
 
           if (isPassed) passedCount++;
 
@@ -1092,28 +1123,69 @@ User's Question/Request: ${text}`;
       )}
 
       {/* SCREEN: CODING RESULT MODE */}
-      {subMode === 'result' && (
-        <div className="max-w-3xl mx-auto space-y-6">
-          <div className="glass-card rounded-3xl p-8 border border-white/10 bg-[#121824]/80 space-y-6 text-center shadow-2xl">
-            <div className="h-16 w-16 rounded-full bg-[#10B981]/20 text-[#10B981] flex items-center justify-center mx-auto border border-[#10B981]/30 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-              <CheckCircle2 className="h-8 w-8" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-[#F9FAFB]">All Test Cases Passed!</h1>
-              <p className="text-xs text-[#9CA3AF]">Compiler: {selectedLang} • Gemini 3.5 Flash-Lite Verification Complete</p>
-            </div>
+      {subMode === 'result' && (() => {
+        const passedCount = testCasesState.filter(tc => tc.status === 'passed').length;
+        const totalCount = testCasesState.length || 1;
+        const allPassed = passedCount === totalCount && totalCount > 0;
 
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <button onClick={() => setSubMode('workspace')} className="px-5 py-2.5 rounded-xl bg-[#10B981] text-white text-xs font-bold hover:bg-[#059669] shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                Try Another Solution
-              </button>
-              <button onClick={() => setSubMode('library')} className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#F9FAFB] hover:bg-white/10">
-                Back to Coding Library
-              </button>
+        return (
+          <div className="max-w-3xl mx-auto space-y-6">
+            <div className="glass-card rounded-3xl p-8 border border-white/10 bg-[#121824]/80 space-y-6 text-center shadow-2xl">
+              <div className={`h-16 w-16 rounded-full flex items-center justify-center mx-auto border ${
+                allPassed 
+                  ? 'bg-[#10B981]/20 text-[#10B981] border-[#10B981]/30 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                  : 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.3)]'
+              }`}>
+                {allPassed ? <CheckCircle2 className="h-8 w-8" /> : <XCircle className="h-8 w-8" />}
+              </div>
+
+              <div>
+                <h1 className="text-xl font-bold text-[#F9FAFB]">
+                  {allPassed ? 'All Test Cases Passed! 🎉' : `${passedCount}/${totalCount} Test Cases Passed ❌`}
+                </h1>
+                <p className="text-xs text-[#9CA3AF] mt-1">
+                  Compiler: {selectedLang} • {allPassed ? 'Verification Complete — Solution Accepted!' : 'Some test cases failed. Please review execution output.'}
+                </p>
+              </div>
+
+              {/* Individual Test Case Badges */}
+              <div className="p-3 rounded-2xl bg-[#0B0F17] border border-white/10 max-w-md mx-auto space-y-2 text-xs">
+                <div className="text-[11px] font-bold text-gray-400 border-b border-white/5 pb-1 flex justify-between">
+                  <span>Test Case Results</span>
+                  <span className={allPassed ? 'text-[#34D399]' : 'text-rose-400'}>{passedCount}/{totalCount} Passed</span>
+                </div>
+                <div className="space-y-1.5 font-mono text-[11px]">
+                  {testCasesState.map((tc, idx) => (
+                    <div key={tc.id} className="flex items-center justify-between px-2 py-1 rounded bg-white/5">
+                      <span className="text-gray-300">Case #{idx + 1}: {tc.input}</span>
+                      <span className={`font-bold text-[10px] ${tc.status === 'passed' ? 'text-[#34D399]' : 'text-rose-400'}`}>
+                        {tc.status === 'passed' ? 'PASSED ✓' : 'FAILED ❌'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => setSubMode('workspace')}
+                  className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] ${
+                    allPassed ? 'bg-[#10B981] hover:bg-[#059669]' : 'bg-rose-600 hover:bg-rose-700'
+                  }`}
+                >
+                  {allPassed ? 'Try Another Solution' : 'Fix Solution in Editor'}
+                </button>
+                <button
+                  onClick={() => setSubMode('library')}
+                  className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#F9FAFB] hover:bg-white/10"
+                >
+                  Back to Coding Library
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
