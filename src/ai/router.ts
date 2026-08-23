@@ -15,6 +15,7 @@ export type AIOperation =
   | 'quiz.explain'
   | 'coding.generate'
   | 'coding.explain'
+  | 'coding.validate'
   | 'coding.local'
   | 'document.process'
   | 'rag.answer'
@@ -41,6 +42,7 @@ const ROUTING_TABLE: Record<AIOperation, ModelId> = {
   'quiz.explain':      MODELS.FLASH_LITE,
   'coding.generate':   MODELS.FLASH_LITE,
   'coding.explain':    MODELS.FLASH_LITE,
+  'coding.validate':   MODELS.FLASH_LITE,
   'document.process':  MODELS.FLASH_LITE,
   'rag.answer':        MODELS.FLASH_LITE,
   'planner.generate':  MODELS.FLASH_LITE,

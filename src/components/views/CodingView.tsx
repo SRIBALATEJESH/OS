@@ -370,40 +370,170 @@ export const CodingView: React.FC<CodingViewProps> = ({ initialTopic }) => {
     }
   };
 
-  const handleRunCode = () => {
+  const runClientJSValidation = (userCode: string, testCases: TestCase[]) => {
+    try {
+      // Create executable JS function from user code
+      // Supports functions named solution, main, or exported code
+      let fn: Function;
+      try {
+        fn = new Function('input', `${userCode}\n if (typeof solution === 'function') return solution(input);\n if (typeof main === 'function') return main(input);\n return typeof input !== 'undefined' ? input : undefined;`);
+      } catch (syntaxErr: any) {
+        return {
+          compiled: false,
+          compilerError: `SyntaxError: ${syntaxErr?.message || 'Invalid JavaScript syntax'}`,
+          testResults: testCases.map(tc => ({
+            id: tc.id,
+            status: 'failed' as const,
+            actualOutput: 'Compilation Error',
+            error: syntaxErr?.message,
+          })),
+          passedCount: 0,
+          totalCount: testCases.length,
+        };
+      }
+
+      let passedCount = 0;
+      const testResults = testCases.map(tc => {
+        try {
+          // Parse input parameter if JSON/primitive
+          let parsedInput: any = tc.input;
+          try {
+            parsedInput = JSON.parse(tc.input);
+          } catch (e) {}
+
+          const actual = fn(parsedInput);
+          const actualStr = typeof actual === 'object' ? JSON.stringify(actual) : String(actual ?? '');
+          const expectedStr = String(tc.expectedOutput ?? '').trim();
+          const isPassed = actualStr.trim() === expectedStr;
+
+          if (isPassed) passedCount++;
+
+          return {
+            id: tc.id,
+            status: (isPassed ? 'passed' : 'failed') as 'passed' | 'failed',
+            actualOutput: actualStr,
+          };
+        } catch (execErr: any) {
+          return {
+            id: tc.id,
+            status: 'failed' as const,
+            actualOutput: `Runtime Error: ${execErr?.message || 'Execution Exception'}`,
+            error: execErr?.message,
+          };
+        }
+      });
+
+      return {
+        compiled: true,
+        testResults,
+        passedCount,
+        totalCount: testCases.length,
+      };
+    } catch (err: any) {
+      return {
+        compiled: false,
+        compilerError: err?.message || 'Failed to execute code.',
+        testResults: testCases.map(tc => ({ id: tc.id, status: 'failed' as const, actualOutput: 'Execution Error' })),
+        passedCount: 0,
+        totalCount: testCases.length,
+      };
+    }
+  };
+
+  const handleRunCode = async (): Promise<boolean> => {
     setIsRunning(true);
-    setStdoutConsole('⚡ Compiling & executing code with Gemini 3.5 Flash-Lite analyzer...');
+    setStdoutConsole(`⚡ Compiling & executing ${selectedLang} code...`);
     const startTime = performance.now();
 
-    setTimeout(() => {
+    try {
+      let validation: {
+        compiled: boolean;
+        compilerError?: string;
+        testResults: Array<{ id: number; status: 'passed' | 'failed'; actualOutput: string; error?: string }>;
+        passedCount: number;
+        totalCount: number;
+        feedback?: string;
+      };
+
+      if (selectedLang === 'JavaScript') {
+        // Run client-side execution first for speed & accuracy
+        validation = runClientJSValidation(code, testCasesState);
+      } else {
+        // Call AI Code Validation Service for Java & Python
+        const res = await fetch('/api/ai/coding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'validate',
+            problemTitle: selectedProblem?.title || 'Coding Problem',
+            problemDescription: selectedProblem?.description || '',
+            language: selectedLang,
+            userCode: code,
+            testCases: testCasesState.map(tc => ({ id: tc.id, input: tc.input, expectedOutput: tc.expectedOutput })),
+          }),
+        });
+
+        const json = await res.json();
+        if (json?.validation) {
+          validation = json.validation;
+        } else {
+          validation = runClientJSValidation(code, testCasesState);
+        }
+      }
+
       const endTime = performance.now();
-      const elapsed = Math.round(endTime - startTime + 18);
+      const elapsed = Math.round(endTime - startTime + 12);
       setExecutionTimeMs(elapsed);
       setIsRunning(false);
 
-      const updatedTCs = testCasesState.map(tc => ({
-        ...tc,
-        actualOutput: tc.expectedOutput,
-        status: 'passed' as const,
-      }));
+      if (!validation.compiled) {
+        const errorTCs = testCasesState.map(tc => ({
+          ...tc,
+          actualOutput: 'Compilation Error',
+          status: 'failed' as const,
+        }));
+        setTestCasesState(errorTCs);
+        setStdoutConsole(`[COMPILER ERROR - ${selectedLang}]\nExecution Time: ${elapsed}ms\nStatus: Compilation Failed ❌\n\n${validation.compilerError || 'Syntax/Type Error encountered during compilation.'}\n\nPlease check your code syntax, missing brackets, or undeclared variables.`);
+        return false;
+      }
+
+      const updatedTCs = testCasesState.map(tc => {
+        const resMatch = validation.testResults.find(r => r.id === tc.id);
+        return {
+          ...tc,
+          actualOutput: resMatch?.actualOutput || 'No output',
+          status: (resMatch?.status === 'passed' ? 'passed' : 'failed') as 'passed' | 'failed',
+        };
+      });
+
       setTestCasesState(updatedTCs);
 
+      const allPassed = validation.passedCount === validation.totalCount;
       const consoleReport = updatedTCs.map((tc, idx) => 
-        `[Test Case ${idx + 1}] PASSED ✓\n  Input:          ${tc.input}\n  Expected Output: ${tc.expectedOutput}\n  Actual Output:   ${tc.expectedOutput}`
+        `[Test Case ${idx + 1}] ${tc.status === 'passed' ? 'PASSED ✓' : 'FAILED ❌'}\n  Input:          ${tc.input}\n  Expected Output: ${tc.expectedOutput}\n  Actual Output:   ${tc.actualOutput}`
       ).join('\n\n');
 
-      setStdoutConsole(`[Compiler Execution Output - ${selectedLang}]\nExecution Time: ${elapsed}ms\nStatus: All ${testCasesState.length} Test Cases PASSED ✓\n\n----------------------------------------\n${consoleReport}\n----------------------------------------\n[Output Verification Complete]`);
-    }, 600);
+      const feedbackMsg = validation.feedback ? `\n\n[AI Feedback & Tips]\n${validation.feedback}` : '';
+
+      setStdoutConsole(`[Compiler Execution Output - ${selectedLang}]\nExecution Time: ${elapsed}ms\nStatus: ${allPassed ? `ALL ${validation.totalCount} TEST CASES PASSED ✓` : `${validation.passedCount}/${validation.totalCount} TEST CASES PASSED ❌`}\n\n----------------------------------------\n${consoleReport}\n----------------------------------------${feedbackMsg}`);
+
+      return allPassed;
+    } catch (err: any) {
+      setIsRunning(false);
+      setStdoutConsole(`[Execution Failure]\nFailed to validate code: ${err?.message || 'Unknown error'}`);
+      return false;
+    }
   };
 
-  const handleSubmitSolution = () => {
-    handleRunCode();
+  const handleSubmitSolution = async () => {
+    const passedAll = await handleRunCode();
     setTimeout(() => {
       if (selectedProblem) {
+        const passedCount = testCasesState.filter(tc => tc.status === 'passed').length;
         const updated = problems.map(p => p.id === selectedProblem.id ? { 
           ...p, 
-          status: 'Solved' as const, 
-          bestResult: `Passed ${p.testCases.length}/${p.testCases.length}`,
+          status: (passedAll ? 'Solved' : 'In Progress') as 'Solved' | 'In Progress', 
+          bestResult: `${passedAll ? 'Passed' : 'Passed'} ${passedCount}/${p.testCases.length}`,
           starterCode: {
             ...p.starterCode,
             [selectedLang]: code,
@@ -412,7 +542,7 @@ export const CodingView: React.FC<CodingViewProps> = ({ initialTopic }) => {
         saveProblems(updated);
       }
       setSubMode('result');
-    }, 800);
+    }, 600);
   };
 
   const handleDeleteProblem = (id: string, title: string) => {

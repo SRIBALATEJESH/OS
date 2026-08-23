@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateCodingProblem, explainCodingMistake } from '@/ai/services/coding';
+import { generateCodingProblem, explainCodingMistake, validateCodeSubmission } from '@/ai/services/coding';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -7,7 +7,21 @@ export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, topic, language, difficulty, problemType, problem, userCode, error: codeError } = body;
+    const { action, topic, language, difficulty, problemType, problem, userCode, error: codeError, problemTitle, problemDescription, testCases } = body;
+
+    if (action === 'validate') {
+      if (!userCode || !language || !testCases) {
+        return NextResponse.json({ error: 'Missing userCode, language, or testCases' }, { status: 400 });
+      }
+      const validationResult = await validateCodeSubmission({
+        problemTitle: problemTitle || 'Coding Problem',
+        problemDescription: problemDescription || 'Solve problem',
+        language,
+        userCode,
+        testCases,
+      });
+      return NextResponse.json({ validation: validationResult });
+    }
 
     if (action === 'explain') {
       if (!problem || !userCode || !language) {
