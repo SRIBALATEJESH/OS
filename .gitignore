@@ -42,7 +42,8 @@ next-env.d.ts
 
 # scratch files & temporary docs
 *.docx
-*_summary.txt
-doc_text.txt
-scripts/test-*.mjs
+*.txt
+StudyFlow_Phase*
+scripts/
+
 
