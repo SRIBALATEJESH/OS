@@ -787,6 +787,19 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
               </div>
 
               <div className="flex items-center gap-2">
+                {selectedDocId !== 'all' && (
+                  <button
+                    onClick={() => {
+                      const docToPreview = documents.find((d) => d.id === selectedDocId);
+                      if (docToPreview) handleOpenPreview(docToPreview);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-[#10B981]/20 border border-[#10B981]/40 text-[11px] font-bold text-[#34D399] hover:bg-[#10B981] hover:text-white transition-all flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>View PDF</span>
+                  </button>
+                )}
+
                 <button
                   onClick={handleClearCurrentSession}
                   className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] font-semibold text-[#9CA3AF] hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5"
@@ -949,7 +962,13 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
                 ) : (previewDoc.type === 'PDF' || previewDoc.name.match(/\.pdf$/i)) ? (
                   (previewDoc.pdfBase64 || previewDoc.fileUrl) ? (
                     <iframe
-                      src={previewDoc.pdfBase64 || previewDoc.fileUrl}
+                      src={
+                        previewDoc.pdfBase64
+                          ? previewDoc.pdfBase64
+                          : (previewDoc.fileUrl || '').startsWith('data:') || (previewDoc.fileUrl || '').startsWith('blob:')
+                          ? previewDoc.fileUrl
+                          : `https://docs.google.com/gview?url=${encodeURIComponent(previewDoc.fileUrl || '')}&embedded=true`
+                      }
                       className="w-full h-full min-h-[550px] rounded-2xl border border-white/10 bg-[#1E293B]"
                       title={previewDoc.name}
                     />
