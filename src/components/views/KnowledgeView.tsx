@@ -227,19 +227,26 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
     setPreviewPage(1);
     setIsPreviewOpen(true);
 
-    // If file is stored in Supabase Storage, download blob directly via authenticated client to bypass CORS/RLS
-    if (doc.filePath && !doc.pdfBase64 && (!doc.fileUrl || doc.fileUrl.includes('supabase.co'))) {
+    // If file is stored in Supabase Storage, fetch a signed URL via server API to bypass RLS/CORS
+    if (doc.filePath && !doc.pdfBase64) {
       try {
-        const blob = await documentService.downloadFileBlob(doc.filePath);
-        if (blob) {
-          const localBlobUrl = URL.createObjectURL(blob);
-          setPreviewDoc((prev) => (prev && prev.id === doc.id ? { ...prev, fileUrl: localBlobUrl } : prev));
+        // Request server-side signed URL (1-hour expiry, bypasses all RLS restrictions)
+        const res = await fetch('/api/storage/signed-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath: doc.filePath }),
+        });
+        const json = await res.json();
+        if (json.url && json.url.length > 0) {
+          // Use Google Docs embedded viewer for cross-origin iframe compatibility
+          const iframeSrc = `https://docs.google.com/gview?url=${encodeURIComponent(json.url)}&embedded=true`;
+          setPreviewDoc((prev) => (prev && prev.id === doc.id ? { ...prev, fileUrl: iframeSrc } : prev));
           setDocuments((prev) =>
-            prev.map((d) => (d.id === doc.id ? { ...d, fileUrl: localBlobUrl } : d))
+            prev.map((d) => (d.id === doc.id ? { ...d, fileUrl: iframeSrc } : d))
           );
         }
       } catch (err) {
-        console.warn('Failed to load blob URL for document preview:', err);
+        console.warn('Failed to fetch signed URL for document preview:', err);
       }
     }
   };
