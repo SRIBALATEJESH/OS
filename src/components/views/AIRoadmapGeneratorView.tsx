@@ -57,7 +57,7 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
 
   /* ── Floating AI Generator Prompt Drawer State ── */
   const [isPromptOpen, setIsPromptOpen] = useState<boolean>(true);
-  const [goal, setGoal] = useState<string>('Master Production Distributed Systems & Microservices in Go');
+  const [goal, setGoal] = useState<string>('');
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Intermediate');
   const [duration, setDuration] = useState<string>('2 months');
   const [weeklyCommitment, setWeeklyCommitment] = useState<string>('10 hours/week');
