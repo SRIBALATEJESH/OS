@@ -240,7 +240,7 @@ export default function StudyFlowShell() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F17] text-[#F9FAFB] flex flex-col md:flex-row antialiased selection:bg-[#10B981]/20 selection:text-[#10B981] relative overflow-hidden">
+    <div className="h-screen h-dvh bg-[#0B0F17] text-[#F9FAFB] flex flex-col md:flex-row antialiased selection:bg-[#10B981]/20 selection:text-[#10B981] relative overflow-hidden">
       {/* Ambient Gradient Mesh Spheres */}
       <div className="ambient-glow-1" />
       <div className="ambient-glow-2" />
@@ -257,7 +257,7 @@ export default function StudyFlowShell() {
       />
 
       {/* Main Shell Content Column */}
-      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-300">
         {/* 2. Top Header Component */}
         <Header
           activeTab={activeTab}
@@ -271,7 +271,7 @@ export default function StudyFlowShell() {
         {/* 3. Main Content Container Area */}
         <main
           className={`
-            flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto transition-all duration-300
+            flex-1 overflow-y-auto scroll-smooth p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto transition-all duration-300
             ${isContextPanelOpen ? 'lg:pr-[23rem]' : ''}
           `}
         >
@@ -284,7 +284,8 @@ export default function StudyFlowShell() {
         isOpen={isContextPanelOpen}
         onClose={() => setIsContextPanelOpen(false)}
         activeTab={activeTab}
-        onOpenAskAI={() => handleOpenAskAI('chat')}
+        onOpenAskAI={(mode) => handleOpenAskAI(mode)}
+        onNavigate={(key) => handleSelectTab(key)}
       />
 
       {/* Global Interactive Modals / Drawers */}

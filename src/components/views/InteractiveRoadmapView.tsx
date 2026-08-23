@@ -97,63 +97,134 @@ export const InteractiveRoadmapView: React.FC<InteractiveRoadmapViewProps> = ({
 
       setCurrentRoadmap(rm);
 
-      // If roadmap has explicit canvas nodes saved
+      // Helper to retrieve progress from localStorage using normalized matching keys
+      const getStoredProgress = (title: string, label: string, topic?: string): number | null => {
+        if (typeof window === 'undefined') return null;
+        const normalize = (str: string) => str.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+        const keys = [title, label, topic].filter(Boolean) as string[];
+        
+        for (let i = 0; i < localStorage.length; i++) {
+          const storageKey = localStorage.key(i);
+          if (storageKey && storageKey.startsWith('studyflow_topic_progress_')) {
+            const rawTopicName = storageKey.replace('studyflow_topic_progress_', '');
+            const normTopicName = normalize(rawTopicName);
+            
+            if (keys.some(k => normalize(k) === normTopicName || normTopicName.includes(normalize(k)) || normalize(k).includes(normTopicName))) {
+              try {
+                const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
+                if (typeof stored.progress === 'number') {
+                  return stored.progress;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+        return null;
+      };
+
+      // Build nodes list
+      let parsedNodes: TreeNode[] = [];
       if (rm.nodes && Array.isArray(rm.nodes) && rm.nodes.length > 0) {
         const rootNodeId = rm.nodes[0]?.id || 'root';
-        const mappedNodes: TreeNode[] = rm.nodes.map((n: any, idx: number) => ({
-          id: n.id || `node-${idx}`,
-          title: n.title || 'Topic Node',
-          label: n.topic || n.difficulty || 'Topic',
-          status: n.status === 'Completed' ? 'completed' : n.status === 'In Progress' ? 'in-progress' : 'not-started',
-          progress: n.status === 'Completed' ? 100 : n.status === 'In Progress' ? 50 : 0,
-          description: Array.isArray(n.subtopics) ? n.subtopics.join(', ') : n.duration || 'Learning topic node',
-          x: typeof n.x === 'number' ? n.x : 200 + (idx % 3) * 250,
-          y: typeof n.y === 'number' ? n.y : 80 + Math.floor(idx / 3) * 160,
-          parentId: n.parentId || (idx === 0 ? null : rootNodeId),
-        }));
-        setNodes(mappedNodes);
+        parsedNodes = rm.nodes.map((n: any, idx: number) => {
+          const storedProg = getStoredProgress(n.title || '', n.label || '', n.topic);
+          let progressVal = storedProg !== null ? storedProg : (typeof n.progress === 'number' ? n.progress : 0);
+
+          return {
+            id: n.id || `node-${idx}`,
+            title: n.title || 'Topic Node',
+            label: n.topic || n.difficulty || 'Topic',
+            status: progressVal >= 100 ? 'completed' : progressVal > 0 ? 'in-progress' : 'not-started',
+            progress: progressVal,
+            description: Array.isArray(n.subtopics) ? n.subtopics.join(', ') : n.duration || 'Learning topic node',
+            x: typeof n.x === 'number' ? n.x : 200 + (idx % 3) * 250,
+            y: typeof n.y === 'number' ? n.y : 80 + Math.floor(idx / 3) * 160,
+            parentId: n.parentId || (idx === 0 ? null : rootNodeId),
+          };
+        });
       } else {
-        // Build dynamic 2D canvas layout from topic list or roadmap goal
         const rootId = 'root';
         const rootNode: TreeNode = {
           id: rootId,
           title: rm.title,
           label: 'Learning Goal',
-          status: rm.progressPercent && rm.progressPercent >= 100 ? 'completed' : 'in-progress',
-          progress: rm.progressPercent || 25,
+          status: 'in-progress',
+          progress: 0,
           description: rm.description || `Comprehensive path for ${rm.title}`,
           x: 500,
           y: 60,
           parentId: null,
         };
 
-        const generated: TreeNode[] = [rootNode];
+        parsedNodes = [rootNode];
         const defaultTopics = [
-          { title: `${rm.title} Fundamentals`, label: 'Core Protocol', progress: 100, status: 'completed' as const },
-          { title: `Advanced ${rm.title}`, label: 'Deep Architecture', progress: 50, status: 'in-progress' as const },
-          { title: `${rm.title} Ecosystem & Tools`, label: 'Tooling', progress: 0, status: 'not-started' as const },
-          { title: `Production & Deployment`, label: 'DevOps', progress: 0, status: 'not-started' as const },
+          { title: `${rm.title} Fundamentals`, label: 'Module 1', progress: 0 },
+          { title: `Advanced ${rm.title}`, label: 'Module 2', progress: 0 },
+          { title: `${rm.title} Ecosystem & Tools`, label: 'Module 3', progress: 0 },
+          { title: `Production & Deployment`, label: 'Module 4', progress: 0 },
         ];
 
         defaultTopics.forEach((t, i) => {
-          generated.push({
+          const storedProg = getStoredProgress(t.title, t.label);
+          let progressVal = storedProg !== null ? storedProg : t.progress;
+
+          parsedNodes.push({
             id: `branch-${i}`,
             title: t.title,
             label: t.label,
-            status: t.status,
-            progress: t.progress,
+            status: progressVal >= 100 ? 'completed' : progressVal > 0 ? 'in-progress' : (i === 0 ? 'in-progress' : 'not-started'),
+            progress: progressVal,
             description: `Core modules and practical exercises for ${t.title}.`,
             x: 200 + i * 220,
             y: 240,
             parentId: rootId,
           });
         });
-
-        setNodes(generated);
       }
+
+      // HIERARCHICAL PROGRESS PROPAGATION: Bottom-Up (Sub-nodes -> Parent Topics -> Root)
+      const rootNode = parsedNodes.find(n => !n.parentId || n.id === 'root' || n.id === 'node-root') || parsedNodes[0];
+
+      // Update parent topics based on their child sub-nodes
+      parsedNodes.forEach(node => {
+        if (node.id === rootNode.id) return;
+        const children = parsedNodes.filter(c => c.parentId === node.id);
+        if (children.length > 0) {
+          const childSum = children.reduce((acc, curr) => acc + (curr.progress || 0), 0);
+          node.progress = Math.round(childSum / children.length);
+          node.status = node.progress >= 100 ? 'completed' : node.progress > 0 ? 'in-progress' : 'not-started';
+        }
+      });
+
+      // Update Root Milestone progress based on Tier 1 direct children
+      const tier1Nodes = parsedNodes.filter(n => n.parentId === rootNode.id);
+      if (tier1Nodes.length > 0) {
+        const hasActiveOrDone = tier1Nodes.some(c => c.status === 'in-progress' || c.status === 'completed');
+        if (!hasActiveOrDone && tier1Nodes[0]) {
+          tier1Nodes[0].status = 'in-progress';
+        }
+
+        const tier1Sum = tier1Nodes.reduce((acc, curr) => acc + (curr.progress || 0), 0);
+        const rootProg = Math.round(tier1Sum / tier1Nodes.length);
+        rootNode.progress = rootProg;
+        rootNode.status = rootProg >= 100 ? 'completed' : 'in-progress';
+      }
+
+      // Persist updated node tree to service
+      if (rm && rm.id) {
+        roadmapService.updateRoadmap(rm.id, { progressPercent: rootNode.progress, nodes: parsedNodes });
+      }
+
+      setNodes(parsedNodes);
     };
 
     loadData();
+
+    // Re-sync on window focus or storage update
+    window.addEventListener('focus', loadData);
+    return () => {
+      window.removeEventListener('focus', loadData);
+    };
   }, [roadmapId]);
 
   const [selectedId, setSelectedId] = useState<string | null>('root');
@@ -533,7 +604,11 @@ export const InteractiveRoadmapView: React.FC<InteractiveRoadmapViewProps> = ({
                 <div
                   key={node.id}
                   onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
-                  onClick={(e) => { e.stopPropagation(); setSelectedId(node.id); }}
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    setSelectedId(node.id); 
+                    setShowInspector(true);
+                  }}
                   className={`absolute group transition-shadow duration-200 ${draggingId === node.id ? 'z-30' : 'z-20'}`}
                   style={{
                     left: node.x,

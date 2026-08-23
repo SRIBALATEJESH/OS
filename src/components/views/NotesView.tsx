@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -41,10 +42,15 @@ interface NotesViewProps {
 export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickAdd }) => {
   const [mode, setMode] = useState<'library' | 'ai-generator' | 'reader-editor'>(initialTopic ? 'ai-generator' : 'library');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [mounted, setMounted] = useState<boolean>(false);
 
   // Notes state - Realtime Supabase Data Only
   const [notes, setNotes] = useState<NoteItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   /* Fetch notes strictly from Supabase service */
   const loadNotes = async () => {
@@ -306,12 +312,12 @@ export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickA
   );
 
   return (
-    <div className="space-y-6 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-16 h-full overflow-y-auto scroll-smooth custom-scrollbar pr-1">
       {/* SCREEN 10: NOTES LIBRARY MODE */}
       {mode === 'library' && (
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-white/10">
+          <div className="sticky top-0 z-30 flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 px-4 -mx-4 rounded-2xl border-b border-white/10 bg-[#0B0F17]/90 backdrop-blur-md shadow-lg">
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-[#F9FAFB]">My Notes</h1>
               <p className="text-xs md:text-sm text-[#9CA3AF]">
@@ -385,12 +391,12 @@ export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickA
 
           {/* Realtime Grid / List Cards */}
           {!isLoading && filteredNotes.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
               {filteredNotes.map((n) => (
                 <div
                   key={n.id}
                   onClick={() => handleOpenNote(n)}
-                  className="glass-card rounded-3xl p-6 border border-white/10 hover:border-[#10B981]/50 hover:-translate-y-1 transition-all duration-300 space-y-3 bg-[#121824]/80 cursor-pointer group flex flex-col justify-between"
+                  className="glass-card rounded-2xl p-4 border border-white/10 hover:border-[#10B981]/50 hover:-translate-y-1 transition-all duration-300 space-y-3 bg-[#121824]/80 cursor-pointer group flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -508,7 +514,7 @@ export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickA
       {/* SCREEN 12: NOTE EDITOR / READER MODE */}
       {mode === 'reader-editor' && selectedNote && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+          <div className="sticky top-0 z-30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 -mx-4 rounded-2xl border-b border-white/10 bg-[#0B0F17]/90 backdrop-blur-md shadow-lg">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#9CA3AF]">
               <button onClick={() => setMode('library')} className="hover:text-[#F9FAFB] flex items-center gap-1">
                 <ArrowLeft className="h-3.5 w-3.5" /> Notes
@@ -612,100 +618,104 @@ export const NotesView: React.FC<NotesViewProps> = ({ initialTopic, onOpenQuickA
       )}
 
       {/* CUSTOM AI TOPIC EXPANSION MODAL */}
-      <AnimatePresence>
-        {isExpandModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-lg glass-card rounded-3xl p-6 border border-white/10 bg-[#121824] shadow-2xl space-y-5"
-            >
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-[#10B981]/20 text-[#34D399]">
-                    <Sparkles className="h-5 w-5" />
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isExpandModalOpen && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-lg glass-card rounded-3xl p-6 border border-white/10 bg-[#121824] shadow-2xl space-y-5 my-auto"
+              >
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-[#10B981]/20 text-[#34D399]">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-[#F9FAFB]">Expand Note with AI</h3>
+                      <p className="text-xs text-[#9CA3AF]">Specify a custom subtopic or choose a preset focus</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-bold text-[#F9FAFB]">Expand Note with AI</h3>
-                    <p className="text-xs text-[#9CA3AF]">Specify a custom subtopic or choose a preset focus</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsExpandModalOpen(false)}
-                  className="p-1 rounded-lg text-[#9CA3AF] hover:text-white hover:bg-white/5"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-semibold text-[#F9FAFB] mb-1.5">
-                    Expansion Topic / Focus Subject
-                  </label>
-                  <input
-                    type="text"
-                    value={expandTopicInput}
-                    onChange={(e) => setExpandTopicInput(e.target.value)}
-                    placeholder="e.g. Security & Vulnerabilities in Express"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[#F9FAFB] focus:outline-none focus:border-[#10B981]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[#9CA3AF] mb-2">
-                    Or select a Quick Preset Topic:
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {presetTopics.map((pt, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setExpandTopicInput(`${editorTitle} - ${pt.replace(/^[^\s]+\s/, '')}`)}
-                        className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-[#F9FAFB] hover:border-[#10B981] hover:bg-[#10B981]/10 transition-all font-medium"
-                      >
-                        {pt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[#F9FAFB] mb-1.5">
-                    Expansion Depth & Depth Focus
-                  </label>
-                  <select
-                    value={expandStyle}
-                    onChange={(e) => setExpandStyle(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-[#0B0F17] text-[#F9FAFB] focus:outline-none focus:border-[#10B981]"
+                  <button
+                    onClick={() => setIsExpandModalOpen(false)}
+                    className="p-1.5 rounded-xl text-[#9CA3AF] hover:text-white hover:bg-white/10 transition-all"
                   >
-                    <option value="Deep dive technical analysis & edge cases">Deep Dive Technical Analysis & Edge Cases</option>
-                    <option value="Architectural code examples & practical syntax">Architectural Code Examples & Practical Syntax</option>
-                    <option value="Interview questions, pitfalls & cheat sheet">Interview Tricky Questions & Cheat Sheet</option>
-                  </select>
+                    ✕
+                  </button>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
-                <button
-                  onClick={() => setIsExpandModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-xs font-semibold text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-white/10"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleExpandNotesWithAI()}
-                  disabled={isExpanding || !expandTopicInput.trim()}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-white text-xs font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                >
-                  {isExpanding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                  <span>Generate Expansion</span>
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                <div className="space-y-4 text-xs">
+                  <div>
+                    <label className="block font-semibold text-[#F9FAFB] mb-1.5">
+                      Expansion Topic / Focus Subject
+                    </label>
+                    <input
+                      type="text"
+                      value={expandTopicInput}
+                      onChange={(e) => setExpandTopicInput(e.target.value)}
+                      placeholder="e.g. Security & Vulnerabilities in Express"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-white/5 text-[#F9FAFB] focus:outline-none focus:border-[#10B981]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-[#9CA3AF] mb-2">
+                      Or select a Quick Preset Topic:
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {presetTopics.map((pt, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setExpandTopicInput(`${editorTitle} - ${pt.replace(/^[^\s]+\s/, '')}`)}
+                          className="px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[11px] text-[#F9FAFB] hover:border-[#10B981] hover:bg-[#10B981]/10 transition-all font-medium cursor-pointer"
+                        >
+                          {pt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-[#F9FAFB] mb-1.5">
+                      Expansion Depth & Depth Focus
+                    </label>
+                    <select
+                      value={expandStyle}
+                      onChange={(e) => setExpandStyle(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-[#0B0F17] text-[#F9FAFB] focus:outline-none focus:border-[#10B981]"
+                    >
+                      <option value="Deep dive technical analysis & edge cases">Deep Dive Technical Analysis & Edge Cases</option>
+                      <option value="Architectural code examples & practical syntax">Architectural Code Examples & Practical Syntax</option>
+                      <option value="Interview questions, pitfalls & cheat sheet">Interview Tricky Questions & Cheat Sheet</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
+                  <button
+                    onClick={() => setIsExpandModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-white/5 text-xs font-semibold text-[#9CA3AF] hover:text-[#F9FAFB] hover:bg-white/10 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleExpandNotesWithAI()}
+                    disabled={isExpanding || !expandTopicInput.trim()}
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-white text-xs font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] cursor-pointer"
+                  >
+                    {isExpanding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    <span>Generate Expansion</span>
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 };

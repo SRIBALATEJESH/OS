@@ -41,6 +41,16 @@ export const Header: React.FC<HeaderProps> = ({
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [isAskAIDropdownOpen, setIsAskAIDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
+
+  React.useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        setUserEmail(user.email);
+      }
+    });
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -82,22 +92,14 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-2 md:gap-3">
         {/* Dynamic Ask AI Dropdown Button */}
         <div className="relative">
-          <div className="flex items-center">
-            <button
-              onClick={() => onOpenAskAI('chat')}
-              className="flex items-center gap-2 px-3 py-2 rounded-l-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-white hover:opacity-90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.25)] group"
-            >
-              <Sparkles className="h-4 w-4 text-emerald-100 group-hover:rotate-12 transition-transform" />
-              <span className="text-xs md:text-sm font-semibold">Ask AI</span>
-            </button>
-            <button
-              onClick={() => setIsAskAIDropdownOpen(!isAskAIDropdownOpen)}
-              className="px-2 py-2 rounded-r-xl bg-[#059669] text-white border-l border-white/20 hover:bg-[#047857] transition-all"
-              title="Select AI Creator Mode"
-            >
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          <button
+            onClick={() => setIsAskAIDropdownOpen(!isAskAIDropdownOpen)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-white hover:opacity-90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.25)] group cursor-pointer"
+          >
+            <Sparkles className="h-4 w-4 text-emerald-100 group-hover:rotate-12 transition-transform" />
+            <span className="text-xs md:text-sm font-semibold">Ask AI</span>
+            <ChevronDown className="h-3.5 w-3.5 text-emerald-100 ml-0.5" />
+          </button>
 
           {/* Ask AI Options */}
           {isAskAIDropdownOpen && (
@@ -249,11 +251,15 @@ export const Header: React.FC<HeaderProps> = ({
             title="Account Options"
           >
             <div className="h-8 w-8 rounded-full bg-[#10B981]/20 border border-[#10B981]/40 flex items-center justify-center text-[#10B981] font-semibold text-xs shrink-0 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-              B
+              {userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}
             </div>
-            <div className="hidden xl:flex flex-col text-left">
-              <span className="text-xs font-semibold text-[#F9FAFB] leading-tight">Account</span>
-              <span className="text-[10px] text-[#9CA3AF]">StudyFlow User</span>
+            <div className="hidden xl:flex flex-col text-left max-w-[140px]">
+              <span className="text-xs font-semibold text-[#F9FAFB] leading-tight truncate">
+                {userEmail ? userEmail.split('@')[0] : 'Account'}
+              </span>
+              <span className="text-[10px] text-[#9CA3AF] truncate">
+                {userEmail || 'Signed in'}
+              </span>
             </div>
             <ChevronDown className="h-3 w-3 text-[#9CA3AF]" />
           </button>
@@ -261,9 +267,9 @@ export const Header: React.FC<HeaderProps> = ({
           {isUserMenuOpen && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setIsUserMenuOpen(false)} />
-              <div className="absolute right-0 mt-2 w-44 bg-[#121824]/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl py-1.5 z-40 animate-fade-in">
-                <div className="px-3 py-1.5 border-b border-white/10 text-[10px] text-[#9CA3AF]">
-                  Signed in as <span className="font-semibold text-white">StudyFlow User</span>
+              <div className="absolute right-0 mt-2 w-56 bg-[#121824]/95 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl py-1.5 z-40 animate-fade-in">
+                <div className="px-3 py-1.5 border-b border-white/10 text-[10px] text-[#9CA3AF] truncate">
+                  Signed in as <span className="font-semibold text-white truncate block">{userEmail || 'StudyFlow User'}</span>
                 </div>
                 <button
                   onClick={handleSignOut}

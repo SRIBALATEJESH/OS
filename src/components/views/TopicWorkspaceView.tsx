@@ -141,20 +141,47 @@ export const TopicWorkspaceView: React.FC<TopicWorkspaceViewProps> = ({
     return () => { isMounted = false; };
   }, [topicTitle]);
 
+  const saveProgress = (items: ChecklistItem[]) => {
+    const doneCount = items.filter(c => c.done).length;
+    const pct = Math.round((doneCount / (items.length || 1)) * 100);
+    try {
+      const progressKey = `studyflow_topic_progress_${topicTitle}`;
+      localStorage.setItem(progressKey, JSON.stringify({ progress: pct, completed: pct >= 100 }));
+    } catch (e) {}
+  };
+
   const toggleCheck = (id: string) => {
-    setChecklist(prev => prev.map(item => item.id === id ? { ...item, done: !item.done } : item));
+    setChecklist(prev => {
+      const updated = prev.map(item => item.id === id ? { ...item, done: !item.done } : item);
+      saveProgress(updated);
+      return updated;
+    });
+  };
+
+  const handleMarkAllCompleted = () => {
+    const completedItems = checklist.map(item => ({ ...item, done: true }));
+    setChecklist(completedItems);
+    saveProgress(completedItems);
   };
 
   const handleAddItem = () => {
     if (!newItemText.trim()) return;
     const newItem = { id: Date.now().toString(), text: newItemText.trim(), done: false };
-    setChecklist(prev => [...prev, newItem]);
+    setChecklist(prev => {
+      const updated = [...prev, newItem];
+      saveProgress(updated);
+      return updated;
+    });
     setNewItemText('');
     setIsAdding(false);
   };
 
   const handleDeleteItem = (id: string) => {
-    setChecklist(prev => prev.filter(item => item.id !== id));
+    setChecklist(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      saveProgress(updated);
+      return updated;
+    });
   };
 
   const completedCount = checklist.filter(c => c.done).length;
@@ -166,7 +193,7 @@ export const TopicWorkspaceView: React.FC<TopicWorkspaceViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-[#9CA3AF] mb-1">
-            <button onClick={onBack} className="hover:text-[#F9FAFB] flex items-center gap-1">
+            <button onClick={onBack} className="hover:text-[#F9FAFB] flex items-center gap-1 cursor-pointer">
               <ArrowLeft className="h-3.5 w-3.5" /> Back to Roadmap
             </button>
             <span>/</span>
@@ -183,16 +210,20 @@ export const TopicWorkspaceView: React.FC<TopicWorkspaceViewProps> = ({
           </p>
         </div>
 
-        {/* Header Metadata Badges */}
+        {/* Header Action Badges & Complete Button */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <div className="px-3 py-1 rounded-xl bg-[#10B981]/20 text-[#34D399] text-xs font-bold border border-[#10B981]/30">
+          <button
+            onClick={handleMarkAllCompleted}
+            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#10B981] to-[#059669] text-white text-xs font-bold hover:opacity-90 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.25)] cursor-pointer"
+          >
+            <CheckCircle2 className="h-4 w-4 text-white" />
+            <span>{progressPercent >= 100 ? 'Topic Completed' : 'Mark Topic Completed'}</span>
+          </button>
+          <div className="px-3 py-1.5 rounded-xl bg-[#10B981]/20 text-[#34D399] text-xs font-bold border border-[#10B981]/30">
             {progressPercent}% Complete
           </div>
-          <div className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#9CA3AF]">
+          <div className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#9CA3AF]">
             {topicDetails.difficulty}
-          </div>
-          <div className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-[#9CA3AF] flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-[#10B981]" /> {topicDetails.estimatedMinutes} min
           </div>
         </div>
       </div>

@@ -34,6 +34,7 @@ interface CanvasNode {
   duration: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   status: 'Completed' | 'In Progress' | 'Not Started';
+  progress?: number;
   x: number;
   y: number;
   subtopics: string[];
@@ -92,7 +93,8 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
       topic: 'Module 1',
       duration: '1 week',
       difficulty: 'Intermediate',
-      status: 'Completed',
+      status: 'Not Started',
+      progress: 0,
       x: 120,
       y: 220,
       subtopics: ['Channels & Mutexes', 'Context Package', 'Worker Pools'],
@@ -104,7 +106,8 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
       topic: 'Module 2',
       duration: '2 weeks',
       difficulty: 'Intermediate',
-      status: 'In Progress',
+      status: 'Not Started',
+      progress: 0,
       x: 640,
       y: 220,
       subtopics: ['Protobuf Schemas', 'Streaming gRPC', 'Interceptors'],
@@ -117,6 +120,7 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
       duration: '2 weeks',
       difficulty: 'Advanced',
       status: 'Not Started',
+      progress: 0,
       x: 60,
       y: 400,
       subtopics: ['Leader Election', 'Log Replication', 'ETCD Basics'],
@@ -129,6 +133,7 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
       duration: '2 weeks',
       difficulty: 'Advanced',
       status: 'Not Started',
+      progress: 0,
       x: 420,
       y: 400,
       subtopics: ['Producers & Consumers', 'Partitioning', 'Event Sourcing'],
@@ -141,6 +146,7 @@ export const AIRoadmapGeneratorView: React.FC<AIRoadmapGeneratorViewProps> = ({ 
       duration: '1 week',
       difficulty: 'Intermediate',
       status: 'Not Started',
+      progress: 0,
       x: 780,
       y: 400,
       subtopics: ['OpenTelemetry', 'Jaeger Tracing', 'Metrics Exporters'],

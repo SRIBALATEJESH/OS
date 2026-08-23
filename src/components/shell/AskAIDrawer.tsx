@@ -52,28 +52,28 @@ export const AskAIDrawer: React.FC<AskAIDrawerProps> = ({ isOpen, onClose, initi
   const [isChatGenerating, setIsChatGenerating] = useState(false);
 
   /* ── 2. AI Roadmap Creator State ── */
-  const [roadmapGoal, setRoadmapGoal] = useState('Master Microservices & Distributed Systems in Go');
+  const [roadmapGoal, setRoadmapGoal] = useState('');
   const [roadmapLevel, setRoadmapLevel] = useState('Intermediate');
   const [roadmapDuration, setRoadmapDuration] = useState('2 months');
   const [isRoadmapCreating, setIsRoadmapCreating] = useState(false);
   const [roadmapCreatedSuccess, setRoadmapCreatedSuccess] = useState(false);
 
   /* ── 3. AI Quiz Creator State ── */
-  const [quizTopic, setQuizTopic] = useState('Java HashMap & Internal Hashing');
+  const [quizTopic, setQuizTopic] = useState('');
   const [quizDifficulty, setQuizDifficulty] = useState('Intermediate');
   const [quizQuestionCount, setQuizQuestionCount] = useState('10 Questions');
   const [isQuizCreating, setIsQuizCreating] = useState(false);
   const [quizCreatedSuccess, setQuizCreatedSuccess] = useState(false);
 
   /* ── 4. AI Note Creator State ── */
-  const [noteTopic, setNoteTopic] = useState('Express Middleware Execution Pipeline');
+  const [noteTopic, setNoteTopic] = useState('');
   const [noteStyle, setNoteStyle] = useState('Detailed Explanation with Code');
   const [noteDepth, setNoteDepth] = useState('Comprehensive');
   const [isNoteCreating, setIsNoteCreating] = useState(false);
   const [noteCreatedSuccess, setNoteCreatedSuccess] = useState(false);
 
   /* ── 5. AI Coding Challenge Creator State ── */
-  const [codingTopic, setCodingTopic] = useState('LRU Cache Eviction Algorithm');
+  const [codingTopic, setCodingTopic] = useState('');
   const [codingLang, setCodingLang] = useState('Java');
   const [codingDifficulty, setCodingDifficulty] = useState('Hard');
   const [isCodingCreating, setIsCodingCreating] = useState(false);
