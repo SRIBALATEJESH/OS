@@ -162,11 +162,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="text-xs font-semibold text-[#9CA3AF] mb-1">
                   Active Focus:{' '}
                   <strong className="text-[#F9FAFB]">
-                    {activeRoadmap?.title || 'Distributed Systems & Engineering'}
+                    {activeRoadmap?.title || 'No Active Roadmap'}
                   </strong>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-[#F9FAFB] tracking-tight">
-                  {activeRoadmap?.category || 'Software Architecture & Cloud Infrastructure'}
+                  {activeRoadmap?.category || 'Create a custom roadmap with AI to begin tracking progress'}
                 </h2>
               </div>
 
@@ -175,13 +175,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-[#9CA3AF]">Overall Completion</span>
                   <span className="text-[#10B981] font-bold">
-                    {activeRoadmap?.progressPercent || 45}%
+                    {activeRoadmap?.progressPercent ?? 0}%
                   </span>
                 </div>
                 <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${activeRoadmap?.progressPercent || 45}%` }}
+                    animate={{ width: `${activeRoadmap?.progressPercent ?? 0}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                     className="bg-[#10B981] h-full rounded-full shadow-[0_0_12px_#10B981]"
                   />

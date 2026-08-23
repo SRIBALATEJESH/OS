@@ -31,7 +31,7 @@ export default function StudyFlowShell() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<NavItemKey>('dashboard');
   const [subView, setSubView] = useState<SubViewMode>('none');
-  const [activeTopicTitle, setActiveTopicTitle] = useState<string>('Middleware');
+  const [activeTopicTitle, setActiveTopicTitle] = useState<string>('');
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
