@@ -220,35 +220,27 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
   };
 
   /* ── Open Document Preview Modal ── */
-  const handleOpenPreview = async (doc: KnowledgeDoc) => {
-    setPreviewDoc(doc);
+  const handleOpenPreview = (doc: KnowledgeDoc) => {
+    // Build the correct iframe src ONCE here, not inside the JSX
+    let viewerSrc = doc.pdfBase64 || '';
+    if (!viewerSrc && doc.filePath) {
+      // Bucket is public — use direct Supabase public URL wrapped in Google Docs viewer
+      const publicUrl = documentService.getPublicUrl(doc.filePath);
+      if (publicUrl) {
+        viewerSrc = `https://docs.google.com/gview?url=${encodeURIComponent(publicUrl)}&embedded=true`;
+      }
+    } else if (!viewerSrc && doc.fileUrl && !doc.fileUrl.startsWith('https://docs.google.com/')) {
+      viewerSrc = `https://docs.google.com/gview?url=${encodeURIComponent(doc.fileUrl)}&embedded=true`;
+    } else if (doc.fileUrl) {
+      viewerSrc = doc.fileUrl;
+    }
+
+    const updatedDoc = { ...doc, fileUrl: viewerSrc };
+    setPreviewDoc(updatedDoc);
     setEditedContentText(doc.content);
     setIsEditingContent(false);
     setPreviewPage(1);
     setIsPreviewOpen(true);
-
-    // If file is stored in Supabase Storage, fetch a signed URL via server API to bypass RLS/CORS
-    if (doc.filePath && !doc.pdfBase64) {
-      try {
-        // Request server-side signed URL (1-hour expiry, bypasses all RLS restrictions)
-        const res = await fetch('/api/storage/signed-url', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filePath: doc.filePath }),
-        });
-        const json = await res.json();
-        if (json.url && json.url.length > 0) {
-          // Use Google Docs embedded viewer for cross-origin iframe compatibility
-          const iframeSrc = `https://docs.google.com/gview?url=${encodeURIComponent(json.url)}&embedded=true`;
-          setPreviewDoc((prev) => (prev && prev.id === doc.id ? { ...prev, fileUrl: iframeSrc } : prev));
-          setDocuments((prev) =>
-            prev.map((d) => (d.id === doc.id ? { ...d, fileUrl: iframeSrc } : d))
-          );
-        }
-      } catch (err) {
-        console.warn('Failed to fetch signed URL for document preview:', err);
-      }
-    }
   };
 
   /* ── Save Document RAG Content Edit ── */
@@ -985,13 +977,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
                 ) : (previewDoc.type === 'PDF' || previewDoc.name.match(/\.pdf$/i)) ? (
                   (previewDoc.pdfBase64 || previewDoc.fileUrl) ? (
                     <iframe
-                      src={
-                        previewDoc.pdfBase64
-                          ? previewDoc.pdfBase64
-                          : (previewDoc.fileUrl || '').startsWith('data:') || (previewDoc.fileUrl || '').startsWith('blob:')
-                          ? previewDoc.fileUrl
-                          : `https://docs.google.com/gview?url=${encodeURIComponent(previewDoc.fileUrl || '')}&embedded=true`
-                      }
+                      src={previewDoc.pdfBase64 || previewDoc.fileUrl || ''}
                       className="w-full h-full min-h-[550px] rounded-2xl border border-white/10 bg-[#1E293B]"
                       title={previewDoc.name}
                     />
