@@ -124,4 +124,34 @@ export const documentService = {
       return '';
     }
   },
+
+  // Download file binary directly from Supabase Storage bucket (bypasses CORS/RLS restrictions)
+  async downloadFileBlob(filePath: string): Promise<Blob | null> {
+    if (!filePath) return null;
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.storage.from('studyflow').download(filePath);
+      if (error || !data) {
+        console.warn('[documentService] Storage download notice:', error?.message);
+        return null;
+      }
+      return data;
+    } catch (err) {
+      console.warn('[documentService] Storage download exception:', err);
+      return null;
+    }
+  },
+
+  // Generate 1-hour signed URL for Supabase storage file
+  async getSignedUrl(filePath: string): Promise<string> {
+    if (!filePath) return '';
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.storage.from('studyflow').createSignedUrl(filePath, 3600);
+      if (!error && data?.signedUrl) {
+        return data.signedUrl;
+      }
+    } catch (err) {}
+    return this.getPublicUrl(filePath);
+  },
 };

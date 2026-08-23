@@ -220,12 +220,28 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({ onOpenAskAI }) => 
   };
 
   /* ── Open Document Preview Modal ── */
-  const handleOpenPreview = (doc: KnowledgeDoc) => {
+  const handleOpenPreview = async (doc: KnowledgeDoc) => {
     setPreviewDoc(doc);
     setEditedContentText(doc.content);
     setIsEditingContent(false);
     setPreviewPage(1);
     setIsPreviewOpen(true);
+
+    // If file is stored in Supabase Storage, download blob directly via authenticated client to bypass CORS/RLS
+    if (doc.filePath && !doc.pdfBase64 && (!doc.fileUrl || doc.fileUrl.includes('supabase.co'))) {
+      try {
+        const blob = await documentService.downloadFileBlob(doc.filePath);
+        if (blob) {
+          const localBlobUrl = URL.createObjectURL(blob);
+          setPreviewDoc((prev) => (prev && prev.id === doc.id ? { ...prev, fileUrl: localBlobUrl } : prev));
+          setDocuments((prev) =>
+            prev.map((d) => (d.id === doc.id ? { ...d, fileUrl: localBlobUrl } : d))
+          );
+        }
+      } catch (err) {
+        console.warn('Failed to load blob URL for document preview:', err);
+      }
+    }
   };
 
   /* ── Save Document RAG Content Edit ── */
